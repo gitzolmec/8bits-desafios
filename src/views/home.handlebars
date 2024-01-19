@@ -1,0 +1,33 @@
+<h2>Lista de Productos</h2>
+
+<style>
+  .product-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .product-card {
+    box-sizing: border-box;
+    width: 20%;
+    margin-right: 5%; /* Espacio entre elementos */
+    margin-bottom: 20px; /* Espacio entre filas */
+  }
+
+  .product-image {
+    max-width: 100%;
+    height: auto;
+  }
+</style>
+
+<div class="product-container">
+  {{#each products}}
+    <div class="product-card">
+      <img src="{{this.thumbnail}}" class="product-image" alt="Producto">
+      <div class="product-details">
+        <h5 class="product-title">{{this.title}}</h5>
+        <p class="product-description">{{this.description}}</p>
+        <p class="product-price">Precio: ${{this.price}}</p>
+      </div>
+    </div>
+  {{/each}}
+</div>
