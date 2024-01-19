@@ -23,7 +23,7 @@ class ProductDAO {
   }
 
   async addProduct(productInfo) {
-    console.log("desde el dao: ",productInfo)
+    
    return await Products.create(productInfo);
    
   }

@@ -2,14 +2,13 @@ document.addEventListener("DOMContentLoaded", function () {
   // Conexión al servidor de Socket.io
   const socket = io("http://localhost:8080");
 
-  // Escuchar el evento 'updateProducts' emitido desde el servidor
-  socket.on("updateProducts", function (data) {
-    // Llamar a la función para actualizar la lista de productos
-    console.log("se conecta a io")
-    updateProductList(data);
+  
+  socket.on("updateProductList", function (products) {
+    
+    updateProductList(products);
   });
 
-  // Escuchar el evento 'addProduct' emitido desde el servidor al agregar un producto
+  
   socket.on("addProduct", function (product) {
     // Llamar a la función para agregar un nuevo producto a la lista
     addProduct(product);
@@ -31,16 +30,17 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Función para actualizar la lista de productos
-  function updateProductList(data) {
-    if (data.deleted) {
-      // Eliminar el producto de la lista
-      const deletedProductElement = document.getElementById(
-        `product-${data._id}`
-      );
-      if (deletedProductElement) {
-        deletedProductElement.remove();
-      }
-    }
+  function updateProductList(products) {
+    const productListContainer = document.getElementById("product-list");
+
+    // Limpiar la lista actual
+    productListContainer.innerHTML = "";
+
+    // Crear y agregar tarjetas de producto para cada producto en la nueva lista
+    products.forEach(product => {
+      const productCard = createProductCard(product);
+      productListContainer.appendChild(productCard);
+    });
   }
 
   // Función para crear la tarjeta de un producto

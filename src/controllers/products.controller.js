@@ -192,8 +192,9 @@ const errorHandler = (err, res) => {
     }
   });
 
-  // Eliminar un producto en tiempo real por su ID
+ 
 // Eliminar un producto en tiempo real por su ID
+// Modifica la función para eliminar un producto en tiempo real por su ID
 router.delete("/realtimeproducts/:pid", async (req, res) => {
   try {
     const pid = req.params.pid;
@@ -201,20 +202,21 @@ router.delete("/realtimeproducts/:pid", async (req, res) => {
     // Obtener la información del producto antes de eliminarlo
     const deletedProduct = await productManager.getProductById(pid);
 
+    if (!deletedProduct) {
+      return res.status(404).json({
+        message: "Producto no encontrado",
+      });
+    }
 
-if(!deletedProduct) return res.status(404).json({
-  message: "Producto no encontrado",
-})
     // Eliminar el producto
     const deleted = await productManager.deleteProduct(pid);
 
-   
+    const newProductList = await productManager.getProducts();
 
     const { io } = require("../app");
-    // Emitir el evento 'updateProducts' con la información del producto eliminado
-    console.log("ANTES")
-    io.emit("updateProducts", { deleted: deleted });
-    console.log("DESPUES")
+    // Emitir el evento 'updateProductList' para actualizar la lista de productos
+    io.emit("updateProductList", newProductList);
+
     res.json({
       message: `Producto con ID ${pid} eliminado con éxito`,
       product: deletedProduct,
@@ -226,6 +228,7 @@ if(!deletedProduct) return res.status(404).json({
     });
   }
 });
+
 
 })();
 
