@@ -43,7 +43,7 @@ const errorHandler = (err, res) => {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
       const products = await productManager.getProducts(limit);
-      res.render("home.handlebars", { products });
+      res.render("realTimeProducts.handlebars", { products });
     } catch (err) {
       errorHandler(err, res);
     }
@@ -182,8 +182,10 @@ const errorHandler = (err, res) => {
       };
       console.log(newProductInfo);
      const newProduct = await productManager.addProduct(newProductInfo)
-
-      res.json({ message: "Producto agregado con éxito" });
+     const { io } = require("../app");
+      io.emit("addProduct", newProduct)
+      res.render('realTimeProducts.handlebars')
+   
     } catch (err) {
       console.error("Error:", err);
       errorHandler(err, res);
@@ -191,36 +193,40 @@ const errorHandler = (err, res) => {
   });
 
   // Eliminar un producto en tiempo real por su ID
-  router.delete("/realtimeproducts/:pid", async (req, res) => {
-    try {
-      const pid = req.params.pid
+// Eliminar un producto en tiempo real por su ID
+router.delete("/realtimeproducts/:pid", async (req, res) => {
+  try {
+    const pid = req.params.pid;
 
-      const deletedProduct = productManager.getProductById(pid);
-      const deleted = (await productManager.deleteProduct(pid)) ? true : false;
+    // Obtener la información del producto antes de eliminarlo
+    const deletedProduct = await productManager.getProductById(pid);
 
-      if (!deleted) {
-        console.log(deleted);
-        return res.status(404).json({
-          message: "Producto no encontrado",
-        });
-      }
 
-      const { io } = require("../app");
-      console.log("Antes de emitir 'updateProducts'");
-      io.emit("updateProducts", { deleted: true, _id: pid });
-      console.log("Después de emitir 'updateProducts'");
+if(!deletedProduct) return res.status(404).json({
+  message: "Producto no encontrado",
+})
+    // Eliminar el producto
+    const deleted = await productManager.deleteProduct(pid);
 
-      res.json({
-        message: `Producto con ID ${pid} eliminado con éxito`,
-        product: deletedProduct,
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        error: "Error al eliminar producto",
-      });
-    }
-  });
+   
+
+    const { io } = require("../app");
+    // Emitir el evento 'updateProducts' con la información del producto eliminado
+    console.log("ANTES")
+    io.emit("updateProducts", { deleted: deleted });
+    console.log("DESPUES")
+    res.json({
+      message: `Producto con ID ${pid} eliminado con éxito`,
+      product: deletedProduct,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Error al eliminar producto",
+    });
+  }
+});
+
 })();
 
 

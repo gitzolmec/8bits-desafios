@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Escuchar el evento 'updateProducts' emitido desde el servidor
   socket.on("updateProducts", function (data) {
     // Llamar a la función para actualizar la lista de productos
+    console.log("se conecta a io")
     updateProductList(data);
   });
 

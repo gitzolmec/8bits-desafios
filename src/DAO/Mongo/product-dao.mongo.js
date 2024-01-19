@@ -1,4 +1,4 @@
-const HTTP_RESPONSES = require("../../constants/http-responses.constants");
+
 const Products = require("../../models/products.model");
 
 class ProductDAO {
