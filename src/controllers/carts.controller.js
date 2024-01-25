@@ -11,11 +11,10 @@ const errorHandler = (err, res) => {
 
 (async () => {
   //cartManager = await new cartDAOFl("controllers/carts.json");
-  cartManager = await new cartDaoMongo("controllers/carts.json");
+  cartManager = await new cartDaoMongo();
   router.post("/", async (req, res) => {
     // Crear un nuevo carrito
     try {
-     
       console.log("Creando carrito");
       const cart = await cartManager.addCart();
       res.json({ cart });
@@ -25,45 +24,117 @@ const errorHandler = (err, res) => {
   });
 
   router.get("/", async (req, res) => {
-    try{
+    try {
       const cart = await cartManager.getCarts();
       res.json({ cart });
-    }catch(err){  
-      errorHandler(err, res);   
+    } catch (err) {
+      errorHandler(err, res);
     }
-   
-    
-    
-    });
-
-  router.get("/:cid", async (req, res) => {
-    // Obtener productos del carrito por su ID
-    try{
-    const cartId = req.params.cid
-    console.log(cartId);
-    const cart = await cartManager.getCartById(cartId);
-  
-    if (cart) {
-      res.json({ cart });
-    } else {
-      res.status(404).json({ error: "Carrito no encontrado" });
-    }
-  }catch(err){
-    errorHandler(err, res);   
-  }
   });
 
-  router.post("/:cid/product/:pid", async (req, res) => {
+  router.get("/:cid", async (req, res) => {
+    try {
+      const cartId = req.params.cid;
+
+      const cart = await cartManager.getCartById(cartId);
+
+      if (cart) {
+        // Mapear los productos y agregar la propiedad quantity
+        const products = cart.products.map((p) => ({
+          ...p.id, // Puedes ajustar esto según la estructura de tu objeto 'id'
+          quantity: p.quantity, // Agregar la propiedad quantity
+        }));
+        console.log(products);
+        res.render("cart.handlebars", { products });
+      } else {
+        res.status(404).json({ error: "Carrito no encontrado" });
+      }
+    } catch (err) {
+      errorHandler(err, res);
+    }
+  });
+
+  router.post("/:cid/products/:pid", async (req, res) => {
     // Agregar un producto al carrito
     try {
-      const cartId = req.params.cid
+      const cartId = req.params.cid;
       const productId = req.params.pid;
       const quantity = req.body.quantity || 1;
 
       await cartManager.addProductToCart(cartId, productId, quantity);
 
       res.json({
-        message: `Producto con ID ${productId} agregado al carrito ${cartId}`,
+        message: `Producto con ID ${productId} agregado al carrito ${cartId}: `,
+      });
+    } catch (err) {
+      errorHandler(err, res);
+    }
+  });
+
+  router.put("/:cid", async (req, res) => {
+    // Agregar un producto al carrito
+    try {
+      const cartId = req.params.cid;
+      const productsList = req.body;
+
+      await cartManager.updateCartWithProductList(cartId, productsList);
+
+      res.json({
+        message: `carrito con ID ${cartId} actualizado con exito: `,
+      });
+    } catch (err) {
+      errorHandler(err, res);
+    }
+  });
+
+  router.put("/:cid/products/:pid", async (req, res) => {
+    // Agregar un producto al carrito
+    try {
+      const cartId = req.params.cid;
+      const productId = req.params.pid;
+      const quantity = req.body.quantity;
+
+      await cartManager.updateProductQuantityInCart(
+        cartId,
+        productId,
+        quantity
+      );
+
+      res.json({
+        message: `carrito con ID ${cartId} actualizado con exito: `,
+      });
+    } catch (err) {
+      errorHandler(err, res);
+    }
+  });
+
+  router.delete("/:cid/products/:pid", async (req, res) => {
+    // Agregar un producto al carrito
+    try {
+      const cartId = req.params.cid;
+      const productId = req.params.pid;
+
+      const deletedProduct = await cartManager.deleteProductFromCart(
+        cartId,
+        productId
+      );
+      //console.log(deletedProduct);
+      res.json({
+        message: `Producto con ID ${productId} eliminado con exito del carrito ${cartId}`,
+        deletedProduct,
+      });
+    } catch (err) {
+      errorHandler(err, res);
+    }
+  });
+  router.delete("/:cid", async (req, res) => {
+    try {
+      const cartId = req.params.cid;
+
+      const deleted = await cartManager.deleteCart(cartId);
+      console.log(deleted);
+      res.json({
+        message: `Carrito con ID ${cartId} vaciado con exito`,
       });
     } catch (err) {
       errorHandler(err, res);

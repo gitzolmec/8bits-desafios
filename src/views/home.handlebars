@@ -17,17 +17,36 @@
     max-width: 100%;
     height: auto;
   }
+
+  .nextandprev{
+    align-items: center;
+  }
 </style>
 
 <div class="product-container">
   {{#each products}}
+  {{#if this._id}}
     <div class="product-card">
       <img src="{{this.thumbnail}}" class="product-image" alt="Producto">
       <div class="product-details">
         <h5 class="product-title">{{this.title}}</h5>
         <p class="product-description">{{this.description}}</p>
         <p class="product-price">Precio: ${{this.price}}</p>
+       
       </div>
     </div>
+    {{/if}}
+    
   {{/each}}
+
+
 </div>
+<div class="nextandprev">
+  {{#if hasPrevPage}}
+     <a href="?page={{prevPage}}{{#if pLimit}}&limit={{pLimit}}{{/if}}{{#if pSort}}&sort={{pSort}}{{/if}}"><button>ANTERIOR</button></a>
+
+  {{/if}}
+  {{#if hasNextPage}}
+  <a href="?page={{nextPage}}{{#if pLimit}}&limit={{pLimit}}{{/if}}{{#if pSort}}&sort={{pSort}}{{/if}}"><button>SIGUIENTE</button></a>
+  {{/if}}
+  </div>

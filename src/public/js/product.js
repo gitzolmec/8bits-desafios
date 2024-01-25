@@ -2,13 +2,12 @@ document.addEventListener("DOMContentLoaded", function () {
   // Conexión al servidor de Socket.io
   const socket = io("http://localhost:8080");
 
-  
   socket.on("updateProductList", function (products) {
-    
-    updateProductList(products);
+    if (products._id) {
+      updateProductList(products);
+    }
   });
 
-  
   socket.on("addProduct", function (product) {
     // Llamar a la función para agregar un nuevo producto a la lista
     addProduct(product);
@@ -37,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
     productListContainer.innerHTML = "";
 
     // Crear y agregar tarjetas de producto para cada producto en la nueva lista
-    products.forEach(product => {
+    products.forEach((product) => {
       const productCard = createProductCard(product);
       productListContainer.appendChild(productCard);
     });

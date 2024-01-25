@@ -1,7 +1,6 @@
 const { Router } = require("express");
 const router = Router();
 const productDAOfl = require("../DAO/Arrays/product-dao.file.js");
-
 const HTTP_RESPONSES = require("../constants/http-responses.constants.js");
 const productDAOMongo = require("../DAO/Mongo/product-dao.mongo.js");
 
@@ -22,28 +21,101 @@ const errorHandler = (err, res) => {
 // Inicialización del ProductManager y definición de rutas
 (async () => {
   productManager = await new productDAOMongo();
- // productManager = await new productDAOfl("controllers/products.json"); 
-
-
+  // productManager = await new productDAOfl("controllers/products.json");
 
   // Obtener todos los productos y renderizar la vista home.handlebars
   router.get("/", async (req, res) => {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
-      const products = await productManager.getProducts(limit);
-      res.render("home.handlebars", { products });
+      const sort = req.query.sort || 1;
+      const page = req.query.page ? parseInt(req.query.page) : 1;
+      const category = req.query.category || "";
+
+      const products = await productManager.getProducts(
+        limit,
+        page,
+        sort,
+        category
+      );
+      const paginationInfo = products[products.length - 1];
+
+      // Acceder a las propiedades de paginación
+      const totalPages = paginationInfo.totalPages;
+      const pages = paginationInfo.page;
+      const hasPrevPage = paginationInfo.hasPrevPage;
+      const hasNextPage = paginationInfo.hasNextPage;
+      const prevPage = paginationInfo.prevPage;
+      const nextPage = paginationInfo.nextPage;
+      const pLimit = paginationInfo.limit;
+      let pSort = 0;
+      if (sort == 1) {
+        pSort = "asc";
+      } else {
+        pSort = "desc";
+      }
+      console.log(products);
+      // Imprimir o utilizar las propiedades
+
+      res.render("home.handlebars", {
+        products,
+        totalPages,
+        pages,
+        hasPrevPage,
+        hasNextPage,
+        prevPage,
+        nextPage,
+        pLimit,
+        pSort,
+      });
     } catch (err) {
       errorHandler(err, res);
     }
   });
-  
 
   // Obtener todos los productos y renderizar la vista realtimeproducts.handlebars
   router.get("/realtimeproducts", async (req, res) => {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
-      const products = await productManager.getProducts(limit);
-      res.render("realTimeProducts.handlebars", { products });
+      const sort = req.query.sort || 1;
+      const page = req.query.page ? parseInt(req.query.page) : 1;
+      const category = req.query.category || "";
+
+      const products = await productManager.getProducts(
+        limit,
+        page,
+        sort,
+        category
+      );
+      const paginationInfo = products[products.length - 1];
+
+      // Acceder a las propiedades de paginación
+      const totalPages = paginationInfo.totalPages;
+      const pages = paginationInfo.page;
+      const hasPrevPage = paginationInfo.hasPrevPage;
+      const hasNextPage = paginationInfo.hasNextPage;
+      const prevPage = paginationInfo.prevPage;
+      const nextPage = paginationInfo.nextPage;
+      const pLimit = paginationInfo.limit;
+      let pSort = 0;
+      if (sort == 1) {
+        pSort = "asc";
+      } else {
+        pSort = "desc";
+      }
+
+      // Imprimir o utilizar las propiedades
+
+      res.render("realTimeProducts.handlebars", {
+        products,
+        totalPages,
+        pages,
+        hasPrevPage,
+        hasNextPage,
+        prevPage,
+        nextPage,
+        pLimit,
+        pSort,
+      });
     } catch (err) {
       errorHandler(err, res);
     }
@@ -74,7 +146,7 @@ const errorHandler = (err, res) => {
       console.log("Request body:", req.body);
       const { title, description, price, thumbnail, code, stock, status } =
         req.body;
-        
+
       if (
         !title ||
         !description ||
@@ -96,7 +168,7 @@ const errorHandler = (err, res) => {
         status,
       };
       console.log(newProductInfo);
-     const newProduct = await productManager.addProduct(newProductInfo)
+      const newProduct = await productManager.addProduct(newProductInfo);
 
       res.json({ message: "Producto agregado con éxito" });
     } catch (err) {
@@ -159,7 +231,7 @@ const errorHandler = (err, res) => {
       console.log("Request body:", req.body);
       const { title, description, price, thumbnail, code, stock, status } =
         req.body;
-        
+
       if (
         !title ||
         !description ||
@@ -181,57 +253,51 @@ const errorHandler = (err, res) => {
         status,
       };
       console.log(newProductInfo);
-     const newProduct = await productManager.addProduct(newProductInfo)
-     const { io } = require("../app");
-      io.emit("addProduct", newProduct)
-      res.render('realTimeProducts.handlebars')
-   
+      const newProduct = await productManager.addProduct(newProductInfo);
+      const { io } = require("../app");
+      io.emit("addProduct", newProduct);
+      res.render("realTimeProducts.handlebars");
     } catch (err) {
       console.error("Error:", err);
       errorHandler(err, res);
     }
   });
 
- 
-// Eliminar un producto en tiempo real por su ID
-// Modifica la función para eliminar un producto en tiempo real por su ID
-router.delete("/realtimeproducts/:pid", async (req, res) => {
-  try {
-    const pid = req.params.pid;
+  // Eliminar un producto en tiempo real por su ID
+  // Modifica la función para eliminar un producto en tiempo real por su ID
+  router.delete("/realtimeproducts/:pid", async (req, res) => {
+    try {
+      const pid = req.params.pid;
 
-    // Obtener la información del producto antes de eliminarlo
-    const deletedProduct = await productManager.getProductById(pid);
+      // Obtener la información del producto antes de eliminarlo
+      const deletedProduct = await productManager.getProductById(pid);
 
-    if (!deletedProduct) {
-      return res.status(404).json({
-        message: "Producto no encontrado",
+      if (!deletedProduct) {
+        return res.status(404).json({
+          message: "Producto no encontrado",
+        });
+      }
+
+      // Eliminar el producto
+      const deleted = await productManager.deleteProduct(pid);
+
+      const newProductList = await productManager.getProducts();
+
+      const { io } = require("../app");
+      // Emitir el evento 'updateProductList' para actualizar la lista de productos
+      io.emit("updateProductList", newProductList);
+
+      res.json({
+        message: `Producto con ID ${pid} eliminado con éxito`,
+        product: deletedProduct,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        error: "Error al eliminar producto",
       });
     }
-
-    // Eliminar el producto
-    const deleted = await productManager.deleteProduct(pid);
-
-    const newProductList = await productManager.getProducts();
-
-    const { io } = require("../app");
-    // Emitir el evento 'updateProductList' para actualizar la lista de productos
-    io.emit("updateProductList", newProductList);
-
-    res.json({
-      message: `Producto con ID ${pid} eliminado con éxito`,
-      product: deletedProduct,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      error: "Error al eliminar producto",
-    });
-  }
-});
-
-
+  });
 })();
-
-
 
 module.exports = router;

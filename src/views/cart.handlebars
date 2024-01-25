@@ -1,0 +1,30 @@
+<h2>Carro de Compras</h2>
+<style>
+     .cart-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+</style>
+<div class="cart-container">
+  {{#each products}}
+    <div class="card mt-3 mx-2" style="width: 18rem;">
+      <img class="card-img-top mt-2 img-info" id="product-image-{{this.id}}" onclick="mostrarInformacion({{this.id}})" src="{{this.thumbnail}}" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title" id="text">{{this.title}}</h5>
+        <p class="card-text" id="text">Codigo: {{this._id}}</p>
+        <p class="card-text" id="text">Precio: {{this.price}}</p>
+        <p class="card-text" id="text">Descripcion: {{this.description}}</p>
+        <button class="btn btn-primary" id="add-to-cart-btn-{{this.id}}" onclick="addProductToCart('{{this._id}}', '{{this.id}}')">Agregar al Carrito</button>
+        <p> {{this.quantity}}</p>
+        {{#if this.quantity}}
+          <button class="btn btn-danger" id="remove-from-cart-btn-{{this.id}}" onclick="deleteProductFromCart('{{this._id}}', '{{this.id}}')">Quitar del Carrito</button>
+        {{else}}
+          <button class="btn btn-danger" id="remove-from-cart-btn-{{this.id}}" onclick="deleteProductFromCart('{{this._id}}', '{{this.id}}')" disabled>Quitar del Carrito</button>
+        {{/if}}
+      </div>
+    </div>
+  {{/each}}
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  
