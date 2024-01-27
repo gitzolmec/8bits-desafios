@@ -1,30 +1,75 @@
-<h2>Carro de Compras</h2>
-<style>
-     .cart-container {
-    display: flex;
-    flex-wrap: wrap;
-  }
-</style>
+<header>
+  <nav class="navbar navbar-light bg-dark min-vw-100">
+    <img src="/img/logo-2019.png" width="300px" />
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a
+          class="nav-link text-white fw-bold cart"
+          data-bs-toggle="modal"
+          data-bs-target="#modal"
+        >
+          <i class="bi bi-cart mx-5" id="carritoContenedor">0</i>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</header>
 <div class="cart-container">
-  {{#each products}}
-    <div class="card mt-3 mx-2" style="width: 18rem;">
-      <img class="card-img-top mt-2 img-info" id="product-image-{{this.id}}" onclick="mostrarInformacion({{this.id}})" src="{{this.thumbnail}}" alt="Card image cap">
-      <div class="card-body">
-        <h5 class="card-title" id="text">{{this.title}}</h5>
-        <p class="card-text" id="text">Codigo: {{this._id}}</p>
-        <p class="card-text" id="text">Precio: {{this.price}}</p>
-        <p class="card-text" id="text">Descripcion: {{this.description}}</p>
-        <button class="btn btn-primary" id="add-to-cart-btn-{{this.id}}" onclick="addProductToCart('{{this._id}}', '{{this.id}}')">Agregar al Carrito</button>
-        <p> {{this.quantity}}</p>
-        {{#if this.quantity}}
-          <button class="btn btn-danger" id="remove-from-cart-btn-{{this.id}}" onclick="deleteProductFromCart('{{this._id}}', '{{this.id}}')">Quitar del Carrito</button>
-        {{else}}
-          <button class="btn btn-danger" id="remove-from-cart-btn-{{this.id}}" onclick="deleteProductFromCart('{{this._id}}', '{{this.id}}')" disabled>Quitar del Carrito</button>
-        {{/if}}
-      </div>
-    </div>
-  {{/each}}
-</div>
+  <h2 id="cartId" style="display: none">{{cartId}}</h2>
+  <table class="table">
+    <thead>
+      <tr style="text-align: center;">
+        <th>Producto</th>
+        <th>Nombre</th>
+        <th>Precio</th>
+        <th>Cantidad</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each products}}
+        <tr style="text-align: center;">
+          <td><img class="img-carrito" src="{{this.thumbnail}}" /></td>
+          <td>{{this.title}}</td>
+          <td>${{this.price}}</td>
+          <td>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-  
+            <button
+              style="display: inline-block; margin-left: 10px;"
+              class="btn btn-danger ml-2"
+              type="button"
+              onclick="deleteOneProduct('{{this._id}}')"
+            >-</button>
+
+            <p
+              style="display: inline-block; margin: 0 10px;"
+            >{{this.quantity}}</p>
+
+            <button
+              style="display: inline-block; margin-right: 10px;"
+              class="btn btn-primary mr-2"
+              id="{{this._id}}"
+              onclick="addProductFromFront('{{this._id}}')"
+            >+</button>
+
+          </td>
+          <td>
+            <button
+              class="btn btn-danger"
+              onclick="deleteProduct('{{this._id}}')"
+            >Eliminar</button>
+          </td>
+        </tr>
+
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+<a href="/api/products" class="btn btn-primary">Ir a Producto</a>
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+  crossorigin="anonymous"
+></script>
+<script src="/js/cart.js"></script>
+<script src="/socket.io/socket.io.js"></script>

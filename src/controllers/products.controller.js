@@ -38,7 +38,14 @@ const errorHandler = (err, res) => {
         category
       );
       const paginationInfo = products[products.length - 1];
+      const Pages = paginationInfo.totalPages;
 
+      if (page < 1 || page > Pages) {
+        // Página fuera del rango, lanzar un error o redireccionar a una página de error
+        return res.render("errorPage.handlebars", {
+          error: "Página no encontrada",
+        });
+      }
       // Acceder a las propiedades de paginación
       const totalPages = paginationInfo.totalPages;
       const pages = paginationInfo.page;
@@ -53,7 +60,7 @@ const errorHandler = (err, res) => {
       } else {
         pSort = "desc";
       }
-      console.log(products);
+
       // Imprimir o utilizar las propiedades
 
       res.render("home.handlebars", {
@@ -254,7 +261,7 @@ const errorHandler = (err, res) => {
       };
       console.log(newProductInfo);
       const newProduct = await productManager.addProduct(newProductInfo);
-      const { io } = require("../app");
+
       io.emit("addProduct", newProduct);
       res.render("realTimeProducts.handlebars");
     } catch (err) {
@@ -264,7 +271,6 @@ const errorHandler = (err, res) => {
   });
 
   // Eliminar un producto en tiempo real por su ID
-  // Modifica la función para eliminar un producto en tiempo real por su ID
   router.delete("/realtimeproducts/:pid", async (req, res) => {
     try {
       const pid = req.params.pid;
@@ -282,11 +288,10 @@ const errorHandler = (err, res) => {
       const deleted = await productManager.deleteProduct(pid);
 
       const newProductList = await productManager.getProducts();
-
-      const { io } = require("../app");
+      const { io } = require("../app.js");
       // Emitir el evento 'updateProductList' para actualizar la lista de productos
-      io.emit("updateProductList", newProductList);
-
+      io.emit("updateProducts", newProductList);
+      res.render("realTimeProducts.handlebars");
       res.json({
         message: `Producto con ID ${pid} eliminado con éxito`,
         product: deletedProduct,
@@ -296,6 +301,32 @@ const errorHandler = (err, res) => {
       res.status(500).json({
         error: "Error al eliminar producto",
       });
+    }
+  });
+
+  router.get("/details/:pid", async (req, res) => {
+    try {
+      const productId = req.params.pid;
+
+      const product = await productManager.getProductById(productId);
+
+      const productrender = [product];
+      const { _id, title, description, price, thumbnail, code, stock, status } =
+        productrender[0];
+
+      res.render("product.handlebars", {
+        _id,
+        title,
+        description,
+        price,
+        thumbnail,
+        code,
+        stock,
+        status,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Hubo un error");
     }
   });
 })();

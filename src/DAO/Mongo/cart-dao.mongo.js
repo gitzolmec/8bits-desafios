@@ -6,6 +6,7 @@ class cartDao {
   }
 
   async getCartById(id) {
+    console.log(id);
     return await Carts.findOne({ _id: id }, { __v: 0 })
       .populate("products.id")
       .lean();
@@ -27,6 +28,7 @@ class cartDao {
   async addProductToCart(cartId, productId, quantity) {
     try {
       // Buscar el carrito por ID
+      console.log(cartId, productId, quantity, "REVISION DE VALORES");
       const cart = await Carts.findOne({ _id: cartId });
 
       if (!cart) {
@@ -118,7 +120,7 @@ class cartDao {
       const productIndex = cart.products.findIndex((product) =>
         product.id.equals(productId)
       );
-
+      console.log("cartId, productId: ", cartId, productId);
       if (productIndex === -1) {
         throw new Error("Producto no encontrado en el carrito");
       }

@@ -1,0 +1,135 @@
+body {
+  background-image: url("/img/fondo.png");
+}
+.imagen {
+  max-width: 100%;
+}
+
+a {
+  cursor: pointer;
+}
+.alerta {
+  font-weight: 700;
+}
+
+.modal-contenedor {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  color: whitesmoke;
+  font-weight: bold;
+}
+.img-carrito {
+  width: 150px;
+  height: max-content;
+  padding: 20px;
+}
+
+.parrafo {
+  font-weight: 900;
+  font-style: italic;
+}
+#precioTotal {
+  margin: 0;
+  padding: 0;
+  color: aliceblue;
+}
+a {
+  text-decoration: none;
+}
+.boton {
+  opacity: 0;
+}
+
+#text {
+  color: black;
+}
+
+#compra {
+  margin-top: 100px;
+  background-color: rgb(189, 189, 189);
+  border-radius: 5px;
+  border-color: whitesmoke;
+  border-style: solid;
+}
+
+.texto {
+  color: black;
+  font-weight: 900;
+}
+
+.close {
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  width: 7%;
+  text-align: center;
+  border-style: solid;
+  border: 5px;
+  border-color: black;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#btn-close:hover {
+  background-color: red;
+}
+
+#textoinfo {
+  font-weight: bold;
+  text-align: center;
+  font-size: 30px;
+}
+
+#texto {
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  text-align: center;
+}
+
+#precioInfo {
+  margin-top: 30px;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  font-weight: bold;
+  text-align: center;
+  font-size: 30px;
+}
+.d-flex {
+  margin-top: 30px;
+  justify-content: space-between;
+}
+
+.img-info {
+  cursor: pointer;
+}
+
+.product-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.cart-container {
+  width: 100%;
+
+  margin-bottom: 10px;
+  margin: 0 auto; /* Esto centrará el contenedor en el medio de la pantalla */
+}
+.card {
+  text-align: center;
+  margin: 0 auto;
+  align-items: center;
+  background-color: rgb(189, 189, 189);
+  border-style: solid;
+  border-color: aliceblue;
+  border-width: 5px;
+  width: 80%;
+  margin-bottom: 10px;
+}
+
+.pcart {
+  margin-bottom: 10px;
+}

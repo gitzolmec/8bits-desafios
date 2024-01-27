@@ -2,6 +2,7 @@ const { Router } = require("express");
 const router = Router();
 const cartDAOFl = require("../DAO/Arrays/cart-dao.file");
 const cartDaoMongo = require("../DAO/Mongo/cart-dao.mongo");
+
 let cartManager;
 
 const errorHandler = (err, res) => {
@@ -41,11 +42,11 @@ const errorHandler = (err, res) => {
       if (cart) {
         // Mapear los productos y agregar la propiedad quantity
         const products = cart.products.map((p) => ({
-          ...p.id, // Puedes ajustar esto según la estructura de tu objeto 'id'
+          ...p.id,
           quantity: p.quantity, // Agregar la propiedad quantity
         }));
-        console.log(products);
-        res.render("cart.handlebars", { products });
+
+        res.render("cart.handlebars", { products, cartId });
       } else {
         res.status(404).json({ error: "Carrito no encontrado" });
       }
@@ -72,7 +73,7 @@ const errorHandler = (err, res) => {
   });
 
   router.put("/:cid", async (req, res) => {
-    // Agregar un producto al carrito
+    // actualizar carrito con una lista de productos y cantidades.
     try {
       const cartId = req.params.cid;
       const productsList = req.body;
