@@ -1,5 +1,4 @@
 // Conexión al servidor de Socket.io
-const socket = io("http://localhost:8080");
 
 function addProductFromFront(productId) {
   console.log(productId, "front");
@@ -13,13 +12,12 @@ async function addProducts(productId) {
     const quantity = 1;
     const newProductId = productId;
     console.log(newProductId, "new");
-    // Utiliza await para asegurarte de que la emisión se realice antes de continuar
+
     await new Promise((resolve) =>
       socket.emit("addProd", { cartId, newProductId, quantity }, resolve)
     );
   } catch (error) {
     console.error(error);
-    // Puedes manejar el error aquí según tus necesidades
   }
 }
 
@@ -33,24 +31,6 @@ socket.on("addProduct", function (product) {
   // Llamar a la función para agregar un nuevo producto a la lista
   addProduct(product);
 });
-
-// async function addProducts(productId) {
-//   try {
-//     const socket = io("http://localhost:8080");
-
-//     const cartId = document.getElementById("cartId").textContent;
-//     const quantity = 1;
-//     const newProductId = productId;
-//     console.log(newProductId, "new");
-//     // Utiliza await para asegurarte de que la emisión se realice antes de continuar
-//     await new Promise((resolve) =>
-//       socket.emit("addProd", { cartId, newProductId, quantity }, resolve)
-//     );
-//   } catch (error) {
-//     console.error(error);
-//     // Puedes manejar el error aquí según tus necesidades
-//   }
-// }
 
 // Función para agregar un nuevo producto a la lista
 function addProduct(product) {

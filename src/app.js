@@ -17,8 +17,6 @@ const httpServer = app.listen(port, () => {
 
 const io = new Server(httpServer);
 io.on("connection", (socket) => {
-  console.log(socket.id);
-
   socket.on("newUser", (data) => {
     socket.broadcast.emit("userConnected", data);
     console.log("usuario", data);

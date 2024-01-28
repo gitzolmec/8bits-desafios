@@ -2,7 +2,9 @@ const Carts = require("../../models/carts.model");
 
 class cartDao {
   async getCarts() {
-    return await Carts.find({}, { __v: 0 }).populate("products.id");
+    const cart = await Carts.find({}, { __v: 0 }).populate("products.id");
+
+    return cart;
   }
 
   async getCartById(id) {
@@ -28,7 +30,7 @@ class cartDao {
   async addProductToCart(cartId, productId, quantity) {
     try {
       // Buscar el carrito por ID
-      console.log(cartId, productId, quantity, "REVISION DE VALORES");
+
       const cart = await Carts.findOne({ _id: cartId });
 
       if (!cart) {
@@ -48,6 +50,10 @@ class cartDao {
 
       // Guardar el carrito actualizado en la base de datos
       await cart.save();
+      console.log("producto agregado al carrito");
+      const { io } = require("../../app");
+
+      io.emit("cartUpdated", cart);
     } catch (error) {
       console.error(error);
       throw new Error("Error al agregar el producto al carrito");
@@ -97,9 +103,16 @@ class cartDao {
 
       if (productIndex !== -1) {
         // Si el producto existe, actualiza la cantidad
-        cart.products[productIndex].quantity = quantity;
-        // Guarda los cambios en el carrito
+        const product = cart.products[productIndex].quantity;
+        if (product > 1) {
+          cart.products[productIndex].quantity -= 1;
+        } else if (product <= 1) {
+          this.deleteProductFromCart(cartId, productId);
+        }
         await cart.save();
+        const { io } = require("../../app");
+
+        io.emit("oneProductDeleted", cart);
       } else {
         throw new Error("Producto no encontrado en el carrito");
       }
@@ -126,6 +139,11 @@ class cartDao {
       }
       cart.products.splice(productIndex, 1);
       await cart.save();
+
+      const { io } = require("../../app");
+
+      io.emit("ProductDeleted", productId);
+
       return cart;
     } catch (error) {
       console.error(error);

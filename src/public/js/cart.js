@@ -1,3 +1,25 @@
+const socket = io("http://localhost:8080");
+socket.on("cartUpdated", (cart) => {
+  const products = cart.products;
+
+  products.forEach((product) => {
+    document.getElementById(`quantity-${product.id}`).textContent =
+      product.quantity;
+  });
+});
+
+socket.on("oneProductDeleted", (cart) => {
+  const Products = cart.products;
+
+  Products.forEach((product) => {
+    document.getElementById(`quantity-${product.id}`).textContent =
+      product.quantity;
+  });
+});
+
+socket.on("ProductDeleted", (productId) => {
+  document.getElementById(`product-${productId}`).remove();
+});
 function addProductFromFront(productId) {
   return addProduct(productId);
 }
@@ -15,14 +37,12 @@ async function addProduct(productId) {
     const cartId = document.getElementById("cartId").textContent;
     const quantity = 1;
     const newProductId = productId;
-    console.log(newProductId, "new");
-    // Utiliza await para asegurarte de que la emisión se realice antes de continuar
+
     await new Promise((resolve) =>
       socket.emit("addProd", { cartId, newProductId, quantity }, resolve)
     );
   } catch (error) {
     console.error(error);
-    // Puedes manejar el error aquí según tus necesidades
   }
 }
 
@@ -33,14 +53,12 @@ async function addProductToView(productId) {
     const quantity = 1;
     const newProductId = productId;
 
-    console.log(newProductId, "new"); // Utiliza await para asegurarte de que la emisión se realice antes de continuar
     await new Promise((resolve) =>
       socket.emit("addProd", { cartId, newProductId, quantity }, resolve)
     );
     alert("Producto agregado correctamente");
   } catch (error) {
     console.error(error);
-    // Puedes manejar el error aquí según tus necesidades
   }
 }
 
@@ -50,15 +68,12 @@ async function deleteProduct(productId) {
     const cartId = "65b1382cab83dedd9755ccd4";
     const quantity = 1;
     const newProductId = productId;
-    console.log(newProductId, "new", "carro", cartId); // Utiliza await para asegurarte de que la emisión se realice antes de continuar
-    console.log(newProductId, "new"); // Utiliza await para asegurarte de que la emisión se realice antes de continuar
+
     await new Promise((resolve) =>
       socket.emit("deleteProd", { cartId, newProductId }, resolve)
     );
-    alert("Producto eliminado correctamente");
   } catch (error) {
     console.error(error);
-    // Puedes manejar el error aquí según tus necesidades
   }
 }
 
@@ -68,7 +83,6 @@ async function deleteProductById(productId) {
     const cartId = "65b1382cab83dedd9755ccd4";
     const quantity = 1;
     const newProductId = productId;
-    // Utiliza await para asegurarte de que la emisión se realice antes de continuar
     await new Promise((resolve) =>
       socket.emit(
         "deleteProductFromView",
@@ -79,6 +93,5 @@ async function deleteProductById(productId) {
     alert("Producto eliminado correctamente");
   } catch (error) {
     console.error(error);
-    // Puedes manejar el error aquí según tus necesidades
   }
 }
