@@ -1,16 +1,45 @@
-
- <header>
-      <nav class="navbar navbar-light bg-dark min-vw-100">
-        <img src="/img/logo-2019.png" width="300px">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link text-white fw-bold cart"  href="/api/carts/65b1382cab83dedd9755ccd4">
-              <i class="bi bi-cart mx-5" id="carritoContenedor">0</i>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </header>
+<header>
+  <nav class="navbar navbar-light bg-dark min-vw-100">
+    <img src="/img/logo-2019.png" width="300px" />
+    <div class="welcome-message text-white">
+      Bienvenido/a, {{first_name}} {{last_name}}<br>
+      Role: {{role}}
+    </div>
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a
+          class="nav-link text-white fw-bold cart"
+          href="/api/carts/65b1382cab83dedd9755ccd4"
+        >
+          <i class="bi bi-cart mx-5" id="carritoContenedor">
+            0
+          </i>
+        </a>
+      </li>
+      <li class="nav-item">
+        <button
+          class="btn btn-outline-light btn-sm"
+          id="logoutButton"
+          onclick="location.href='/api/auth/logout'"
+        >
+          Cerrar Sesión
+        </button>
+      </li>
+       <li> <button
+          class="btn btn-outline-light btn-sm"
+          id="user-admin"
+          {{#if adminValidation}}
+  onclick="location.href='/api/users/list'"
+  {{else}}
+  style="display: none;"
+{{/if}} 
+        >
+          Mantenedor de usuarios
+        </button></li>
+    </ul>
+  </nav>
+</header>
+    
     
   
    

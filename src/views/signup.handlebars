@@ -1,0 +1,73 @@
+<header>
+  <nav class="navbar navbar-light bg-dark min-vw-100">
+    <img src="/img/logo-2019.png" width="300px" class="mx-auto" />
+
+  </nav>
+</header>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <header class="card-header">
+          <h4 class="card-title mt-2">Registrarse</h4>
+        </header>
+        <article class="card-body">
+          <form action="" id="signupForm">
+            <div class="form-group">
+              <label for="firstNameInput">Nombre</label>
+              <input
+                type="text"
+                class="form-control"
+                id="firstNameInput"
+                placeholder="Ingresa tu nombre"
+                name="first_name"
+              />
+            </div>
+            <div class="form-group">
+              <label for="lastNameInput">Apellido</label>
+              <input
+                type="text"
+                class="form-control"
+                id="lastNameInput"
+                placeholder="Ingresa tu apellido"
+                name="last_name"
+              />
+            </div>
+            <div class="form-group">
+              <label for="emailInput">Correo electrónico</label>
+              <input
+                type="email"
+                class="form-control"
+                id="emailInput"
+                placeholder="Ingresa tu correo electrónico"
+                name="email"
+              />
+            </div>
+            <div class="form-group">
+              <label for="passwordInput">Contraseña</label>
+              <input
+                type="password"
+                class="form-control"
+                id="passwordInput"
+                placeholder="Ingresa tu contraseña"
+                name="password"
+              />
+            </div>
+            <div class="form-group">
+              <button
+                type="submit"
+                class="btn btn-primary btn-block"
+                id="signupButton"
+              >Registrarse</button>
+                 </div class="form-group">
+            <label>¿ya tienes una cuenta? <a href="/api/login">Inicia sesion</a></label>
+            <div>
+            </div>
+          
+          </form>
+        </article>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/signup.js"></script>

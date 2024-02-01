@@ -3,7 +3,7 @@ const router = Router();
 const productDAOfl = require("../DAO/Arrays/product-dao.file.js");
 const HTTP_RESPONSES = require("../constants/http-responses.constants.js");
 const productDAOMongo = require("../DAO/Mongo/product-dao.mongo.js");
-
+const authMiddleware = require("../middlewares/auth.middleware.js");
 let productManager;
 
 // Función para manejar errores y enviar una respuesta con un código de estado 500
@@ -24,12 +24,19 @@ const errorHandler = (err, res) => {
   // productManager = await new productDAOfl("controllers/products.json");
 
   // Obtener todos los productos y renderizar la vista home.handlebars
-  router.get("/", async (req, res) => {
+  router.get("/", authMiddleware, async (req, res) => {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
       const sort = req.query.sort || 1;
       const page = req.query.page ? parseInt(req.query.page) : 1;
       const category = req.query.category || "";
+      const { user } = req.session;
+      const { first_name, last_name, role } = user;
+      let adminValidation = "";
+      if (role == "admin") {
+        adminValidation = "admin";
+        console.log("VALIDATION: ", adminValidation);
+      }
 
       const products = await productManager.getProducts(
         limit,
@@ -73,6 +80,10 @@ const errorHandler = (err, res) => {
         nextPage,
         pLimit,
         pSort,
+        first_name,
+        last_name,
+        role,
+        adminValidation,
       });
     } catch (err) {
       errorHandler(err, res);
@@ -80,7 +91,7 @@ const errorHandler = (err, res) => {
   });
 
   // Obtener todos los productos y renderizar la vista realtimeproducts.handlebars
-  router.get("/realtimeproducts", async (req, res) => {
+  router.get("/realtimeproducts", authMiddleware, async (req, res) => {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
       const sort = req.query.sort || 1;
@@ -129,12 +140,12 @@ const errorHandler = (err, res) => {
   });
 
   // Obtener un producto por su ID
-  router.get("/:pid", async (req, res) => {
+  router.get("/:pid", authMiddleware, async (req, res) => {
     try {
       const pid = req.params.pid;
 
       const product = await productManager.getProductById(pid);
-      console.log(product);
+
       if (product) {
         res.json({ product });
       } else {
@@ -307,7 +318,8 @@ const errorHandler = (err, res) => {
   router.get("/details/:pid", async (req, res) => {
     try {
       const productId = req.params.pid;
-
+      const { user } = req.session;
+      const { first_name, last_name, role } = user;
       const product = await productManager.getProductById(productId);
 
       const productrender = [product];
@@ -323,6 +335,8 @@ const errorHandler = (err, res) => {
         code,
         stock,
         status,
+        first_name,
+        last_name,
       });
     } catch (error) {
       console.log(error);

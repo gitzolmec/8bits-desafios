@@ -37,7 +37,7 @@ async function addProduct(productId) {
     const cartId = document.getElementById("cartId").textContent;
     const quantity = 1;
     const newProductId = productId;
-
+    console.log("_", cartId, "_");
     await new Promise((resolve) =>
       socket.emit("addProd", { cartId, newProductId, quantity }, resolve)
     );

@@ -1,0 +1,63 @@
+<header>
+  <nav class="navbar navbar-light bg-dark min-vw-100">
+    <a href="/api/products">
+      <img src="/img/logo-2019.png" width="300px" />
+    </a>
+    <div class="welcome-message text-white">
+      Bienvenido/a, {{first_name}} {{last_name}}
+    </div>
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <button
+          class="btn btn-outline-light btn-sm"
+          id="logoutButton"
+          onclick="location.href='/api/auth/logout'"
+        >
+          Cerrar Sesión
+        </button>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<div class="container mt-5" style="background-color: aliceblue;">
+  <h2 class="mb-4">
+    Listado de Usuarios Registrados
+  </h2>
+  <table class="table table-bordered table-hover">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">
+          Nombre
+        </th>
+        <th scope="col">
+          Apellido
+        </th>
+        <th scope="col">
+          Correo
+        </th>
+        <th scope="col">
+          Rol
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each list}}
+        <tr>
+          <td>
+            {{this.first_name}}
+          </td>
+          <td>
+            {{this.last_name}}
+          </td>
+          <td>
+            {{this.email}}
+          </td>
+          <td>
+            {{this.role}}
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,54 @@
+<style>
+  body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: #495057;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .error-container {
+      text-align: center;
+      padding: 20px;
+      background-color: #f1f1f1;
+      border: 1px solid #d4d4d4;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #dc3545;
+    }
+
+    p {
+      margin-top: 10px;
+    }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+</style>
+
+<div class="error-container">
+  <h1>
+    Error: Unauthorized
+  </h1>
+  <p>
+    you don't have permission to view this directory or page using the credentials that you supplied.
+  </p>
+  <p>
+    Return to
+    <a href="/api/products">
+      home
+    </a>
+    .
+  </p>
+</div>

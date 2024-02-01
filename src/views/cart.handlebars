@@ -1,72 +1,112 @@
 <header>
   <nav class="navbar navbar-light bg-dark min-vw-100">
-    <img src="/img/logo-2019.png" width="300px" />
+    <a href="/api/products">
+      <img src="/img/logo-2019.png" width="300px" />
+    </a>
+    <div class="welcome-message text-white">
+      Bienvenido/a, {{first_name}} {{last_name}}
+    </div>
     <ul class="navbar-nav">
       <li class="nav-item">
         <a
           class="nav-link text-white fw-bold cart"
-          data-bs-toggle="modal"
-          data-bs-target="#modal"
+          href="/api/carts/65b1382cab83dedd9755ccd4"
         >
-          <i class="bi bi-cart mx-5" id="carritoContenedor">0</i>
+          <i class="bi bi-cart mx-5" id="carritoContenedor">
+            0
+          </i>
         </a>
+      </li>
+      <li class="nav-item">
+        <button
+          class="btn btn-outline-light btn-sm"
+          id="logoutButton"
+          onclick="location.href='/api/auth/logout'"
+        >
+          Cerrar Sesión
+        </button>
       </li>
     </ul>
   </nav>
 </header>
 <div class="cart-container">
-  <h2 id="cartId" style="display: none">{{cartId}}</h2>
+  <h2 id="cartId" style="display: none">
+    {{cartId}}
+  </h2>
   <table class="table">
     <thead>
       <tr style="text-align: center;">
-        <th>Producto</th>
-        <th>Nombre</th>
-        <th>Precio</th>
-        <th>Cantidad</th>
-        <th>Acciones</th>
+        <th>
+          Producto
+        </th>
+        <th>
+          Nombre
+        </th>
+        <th>
+          Precio
+        </th>
+        <th>
+          Cantidad
+        </th>
+        <th>
+          Acciones
+        </th>
       </tr>
     </thead>
     <tbody>
       {{#each products}}
         <tr style="text-align: center;" id="product-{{this._id}}">
-          <td><img class="img-carrito" src="{{this.thumbnail}}" /></td>
-          <td>{{this.title}}</td>
-          <td>${{this.price}}</td>
           <td>
-
+            <img class="img-carrito" src="{{this.thumbnail}}" />
+          </td>
+          <td>
+            {{this.title}}
+          </td>
+          <td>
+            ${{this.price}}
+          </td>
+          <td>
             <button
               style="display: inline-block; margin-left: 10px;"
               class="btn btn-danger ml-2"
               type="button"
               onclick="deleteOneProduct('{{this._id}}')"
-            >-</button>
+            >
+              -
+            </button>
 
             <p
               id="quantity-{{this._id}}"
               style="display: inline-block; margin: 0 10px;"
-            >{{this.quantity}}</p>
+            >
+              {{this.quantity}}
+            </p>
 
             <button
               style="display: inline-block; margin-right: 10px;"
               class="btn btn-primary mr-2"
               id="{{this._id}}"
               onclick="addProductFromFront('{{this._id}}')"
-            >+</button>
-
+            >
+              +
+            </button>
           </td>
           <td>
             <button
               class="btn btn-danger"
               onclick="deleteProduct('{{this._id}}')"
-            >Eliminar</button>
+            >
+              Eliminar
+            </button>
           </td>
         </tr>
-
       {{/each}}
     </tbody>
   </table>
 </div>
-<a href="/api/products" class="btn btn-primary">Ir a Producto</a>
+<a href="/api/products" class="btn btn-primary">
+  Ir a Producto
+</a>
 <script src="/socket.io/socket.io.js"></script>
 <script
   src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"

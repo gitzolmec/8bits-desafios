@@ -4,7 +4,7 @@ const mongoosePaginate = require("mongoose-paginate-v2");
 class ProductDAO {
   async getProducts(limit, qpage, sort, category) {
     try {
-      limit = limit ? limit : 12;
+      limit = limit ? limit : 6;
       sort = sort ? sort : "asc";
       qpage = qpage ? qpage : 1;
       category = category ? category : "";
@@ -39,7 +39,6 @@ class ProductDAO {
       };
       products.push(productObj);
 
-      console.log(products);
       return products;
     } catch (error) {
       console.log("Error al obtener los productos desde MongoDB");
@@ -52,11 +51,6 @@ class ProductDAO {
   async getProductById(id) {
     const product = await Products.findOne({ _id: id });
     return product;
-  }
-
-  async renderProductView(product) {
-    //función de renderizado de vista
-    return templateRendered;
   }
 
   async addProduct(productInfo) {

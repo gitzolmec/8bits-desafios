@@ -32,6 +32,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("addProd", async ({ cartId, newProductId, quantity }) => {
+    cartId = cartId.trim();
     await cart.addProductToCart(cartId, newProductId, quantity);
   });
 

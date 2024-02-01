@@ -2,6 +2,7 @@ const { Router } = require("express");
 const router = Router();
 const cartDAOFl = require("../DAO/Arrays/cart-dao.file");
 const cartDaoMongo = require("../DAO/Mongo/cart-dao.mongo");
+const authMiddleware = require("../middlewares/auth.middleware.js");
 
 let cartManager;
 
@@ -24,7 +25,7 @@ const errorHandler = (err, res) => {
     }
   });
 
-  router.get("/", async (req, res) => {
+  router.get("/", authMiddleware, async (req, res) => {
     try {
       const cart = await cartManager.getCarts();
       res.json({ cart });
@@ -33,10 +34,11 @@ const errorHandler = (err, res) => {
     }
   });
 
-  router.get("/:cid", async (req, res) => {
+  router.get("/:cid", authMiddleware, async (req, res) => {
     try {
       const cartId = req.params.cid;
-
+      const { user } = req.session;
+      const { first_name, last_name } = user;
       const cart = await cartManager.getCartById(cartId);
 
       if (cart) {
@@ -45,8 +47,13 @@ const errorHandler = (err, res) => {
           ...p.id,
           quantity: p.quantity, // Agregar la propiedad quantity
         }));
-
-        res.render("cart.handlebars", { products, cartId });
+        console.log(cartId);
+        res.render("cart.handlebars", {
+          products,
+          cartId,
+          first_name,
+          last_name,
+        });
       } else {
         res.status(404).json({ error: "Carrito no encontrado" });
       }
