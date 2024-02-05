@@ -8,6 +8,8 @@ const session = require("express-session");
 const fileStore = require("session-file-store");
 const MongoStore = require("connect-mongo");
 const { dbUser, dbPassword, dbHost, dbName } = require("./configs/db.config");
+const initializePassport = require("./configs/passport.config");
+const passport = require("passport");
 
 const fileStorage = fileStore(session);
 app.use(express.json());
@@ -25,6 +27,10 @@ app.use(
     saveUninitialized: false,
   })
 );
+
+initializePassport();
+app.use(passport.initialize());
+app.use(passport.session());
 app.engine("handlebars", handlebars.engine());
 
 app.set("view engine", process.cwd() + "/views");

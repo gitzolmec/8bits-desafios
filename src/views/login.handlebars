@@ -1,3 +1,10 @@
+<style>
+  .github-btn:hover {
+    background-color: #f0f0f0; /* Cambia el color de fondo cuando el mouse está sobre el botón */
+    border-color: #999; /* Cambia el color del borde cuando el mouse está sobre el botón */
+    cursor: pointer; /* Cambia el cursor a una mano para indicar que es clickable */
+  }
+</style>
 <header>
   <nav class="navbar navbar-light bg-dark min-vw-100">
     <img src="/img/logo-2019.png" width="300px" class="mx-auto"/>
@@ -42,8 +49,15 @@
             </div class="form-group">
             <label>¿No tienes una cuenta? <a href="/api/signup">Registrate</a></label>
             <div>
+           
 
             </div>
+            <p>O</p>
+               <div>
+  <a href="/api/auth/github" class="github-btn btn btn-default bg-white" >
+    <img src="https://logos-world.net/wp-content/uploads/2020/11/GitHub-Logo.png" style="width: 100px; border:solid; border:10px; border-radius:30px" >
+    Iniciar sesión con GitHub
+  </a></div>
           </form>
         </article>
       </div>
@@ -51,3 +65,6 @@
   </div>
 </div>
 <script src="/js/login.js"></script>
+ <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.6.0/js/bootstrap.min.js"></script>
