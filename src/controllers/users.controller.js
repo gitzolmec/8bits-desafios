@@ -27,14 +27,14 @@ router.get("/list", adminAuthMiddleware, async (req, res) => {
   try {
     const list = [];
     const user = await Users.find({}, { __v: 0 });
-    user.forEach((element) => {
-      const first_name = element.first_name;
-      const last_name = element.last_name;
-      const email = element.email;
-      const role = element.role;
+    user.forEach((users) => {
+      const first_name = users.first_name;
+      const last_name = users.last_name;
+      const email = users.email;
+      const role = users.role;
       list.push({ first_name, last_name, email, role });
     });
-    console.log(list);
+
     res.render("users-list.handlebars", { list });
   } catch (error) {
     console.log(error);

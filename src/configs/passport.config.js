@@ -1,6 +1,7 @@
 const passport = require("passport");
 const local = require("passport-local");
 const GithubStrategy = require("passport-github2");
+const { ghClientSecret, ghClientId } = require("./github.config");
 const Users = require("../models/users.model");
 const {
   createHash,
@@ -8,8 +9,6 @@ const {
 } = require("../utils/crypt.password.util");
 
 const LocalStrategy = local.Strategy;
-const ghClientId = "Iv1.fabcb3c8fd6a1a21";
-const ghClientSecret = "e427c10b811a57fa8346169df416fd6cfc24dd6f";
 
 const initializePassport = () => {
   passport.use(
@@ -77,8 +76,6 @@ const initializePassport = () => {
       },
       async (accessToken, RefreshToken, profile, done) => {
         try {
-          console.log(profile);
-
           const { id, login, name, email } = profile._json;
           const completeName = name.split(" ");
           const user = await Users.findOne({ email: email });

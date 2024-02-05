@@ -47,7 +47,7 @@ const errorHandler = (err, res) => {
           ...p.id,
           quantity: p.quantity, // Agregar la propiedad quantity
         }));
-        console.log(cartId);
+
         res.render("cart.handlebars", {
           products,
           cartId,
@@ -126,7 +126,7 @@ const errorHandler = (err, res) => {
         cartId,
         productId
       );
-      //console.log(deletedProduct);
+
       res.json({
         message: `Producto con ID ${productId} eliminado con exito del carrito ${cartId}`,
         deletedProduct,
@@ -140,7 +140,7 @@ const errorHandler = (err, res) => {
       const cartId = req.params.cid;
 
       const deleted = await cartManager.deleteCart(cartId);
-      console.log(deleted);
+
       res.json({
         message: `Carrito con ID ${cartId} vaciado con exito`,
       });

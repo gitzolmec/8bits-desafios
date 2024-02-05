@@ -35,7 +35,6 @@ const errorHandler = (err, res) => {
       let adminValidation = "";
       if (role == "admin") {
         adminValidation = "admin";
-        console.log("VALIDATION: ", adminValidation);
       }
 
       const products = await productManager.getProducts(
@@ -185,7 +184,7 @@ const errorHandler = (err, res) => {
         stock,
         status,
       };
-      console.log(newProductInfo);
+
       const newProduct = await productManager.addProduct(newProductInfo);
 
       res.json({ message: "Producto agregado con éxito" });
@@ -226,7 +225,6 @@ const errorHandler = (err, res) => {
       const deleted = (await productManager.deleteProduct(pid)) ? true : false;
 
       if (!deleted) {
-        console.log(deleted);
         return res.status(HTTP_RESPONSES.NOT_FOUND).json({
           message: "Producto no encontrado",
         });
