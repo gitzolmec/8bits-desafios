@@ -1,43 +1,51 @@
 const socket = io("http://localhost:8080");
-socket.on("cartUpdated", (cart) => {
+socket.on("cartUpdated", (cart, totalProducts, view) => {
   const products = cart.products;
+  if (view) {
+    console.log(totalProducts, products);
+    document.getElementById("carritoContenedor").textContent = totalProducts;
+    return;
+  }
 
   products.forEach((product) => {
     document.getElementById(`quantity-${product.id}`).textContent =
       product.quantity;
   });
+
+  document.getElementById("carritoContenedor").textContent = totalProducts;
 });
 
-socket.on("oneProductDeleted", (cart) => {
+socket.on("oneProductDeleted", (cart, totalProducts) => {
   const Products = cart.products;
 
   Products.forEach((product) => {
     document.getElementById(`quantity-${product.id}`).textContent =
       product.quantity;
   });
+  document.getElementById("carritoContenedor").textContent = totalProducts;
 });
 
-socket.on("ProductDeleted", (productId) => {
+socket.on("ProductDeleted", (productId, totalProducts) => {
   document.getElementById(`product-${productId}`).remove();
+  document.getElementById("carritoContenedor").textContent = totalProducts;
 });
-function addProductFromFront(productId) {
-  return addProduct(productId);
+function addProductFromFront(productId, cartId) {
+  return addProduct(productId, cartId);
 }
 function deleteProductFromFront(productId) {
   return deleteProduct(productId);
 }
-function deleteOneProduct(productId) {
-  return deleteProductById(productId);
+function deleteOneProduct(productId, cartId) {
+  return deleteProductById(productId, cartId);
 }
 
-async function addProduct(productId) {
+async function addProduct(productId, cartId) {
   try {
     const socket = io("http://localhost:8080");
 
-    const cartId = document.getElementById("cartId").textContent;
     const quantity = 1;
     const newProductId = productId;
-    console.log("_", cartId, "_");
+
     await new Promise((resolve) =>
       socket.emit("addProd", { cartId, newProductId, quantity }, resolve)
     );
@@ -46,15 +54,15 @@ async function addProduct(productId) {
   }
 }
 
-async function addProductToView(productId) {
+async function addProductToView(productId, cartId) {
   try {
     const socket = io("http://localhost:8080");
-    const cartId = "65b1382cab83dedd9755ccd4";
+
     const quantity = 1;
     const newProductId = productId;
-
+    const page = "detailView";
     await new Promise((resolve) =>
-      socket.emit("addProd", { cartId, newProductId, quantity }, resolve)
+      socket.emit("addProdToView", { cartId, newProductId, quantity }, resolve)
     );
     alert("Producto agregado correctamente");
   } catch (error) {
@@ -62,10 +70,10 @@ async function addProductToView(productId) {
   }
 }
 
-async function deleteProduct(productId) {
+async function deleteProduct(productId, cartId) {
   try {
     const socket = io("http://localhost:8080");
-    const cartId = "65b1382cab83dedd9755ccd4";
+
     const quantity = 1;
     const newProductId = productId;
 
@@ -77,10 +85,10 @@ async function deleteProduct(productId) {
   }
 }
 
-async function deleteProductById(productId) {
+async function deleteProductById(productId, cartId) {
   try {
     const socket = io("http://localhost:8080");
-    const cartId = "65b1382cab83dedd9755ccd4";
+
     const quantity = 1;
     const newProductId = productId;
     await new Promise((resolve) =>

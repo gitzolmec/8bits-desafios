@@ -1,14 +1,23 @@
 const passport = require("passport");
 const local = require("passport-local");
 const GithubStrategy = require("passport-github2");
+const jwt = require("passport-jwt");
+const { tokenSecret } = require("./token.config");
 const { ghClientSecret, ghClientId } = require("./github.config");
 const Users = require("../models/users.model");
+const CartDao = require("../DAO/Mongo/cart-dao.mongo");
+const carts = new CartDao();
 const {
   createHash,
   useValidPassword,
 } = require("../utils/crypt.password.util");
+const { generateToken } = require("../utils/jwt.util");
+
+const cookieExtractor = require("../utils/cookie-extractor.util");
+const calculateAge = require("../middlewares/calculateAge.middleware");
 
 const LocalStrategy = local.Strategy;
+const JWTStrategy = jwt.Strategy;
 
 const initializePassport = () => {
   passport.use(
@@ -17,20 +26,25 @@ const initializePassport = () => {
       { passReqToCallback: true, usernameField: "email" },
       async (req, username, password, done) => {
         try {
-          const { first_name, last_name, email } = req.body;
+          console.log(req.body);
+          const { first_name, last_name, email, age } = req.body;
           const user = await Users.findOne({ email: username });
           if (user) {
             console.log("User exists");
             return done(null, false);
           }
-
+          const userAge = calculateAge(age);
+          const cart = await carts.addCart();
+          const cartId = cart._id;
           const newUserInfo = {
             first_name,
             last_name,
+            age: userAge,
             email,
             password: createHash(password),
+            cartId,
           };
-
+          console.log(newUserInfo);
           const newUser = await Users.create(newUserInfo);
 
           return done(null, newUser);
@@ -79,6 +93,8 @@ const initializePassport = () => {
           const { id, login, name, email } = profile._json;
           const completeName = name.split(" ");
           const user = await Users.findOne({ email: email });
+          const cart = await carts.addCart();
+          const cartId = cart._id;
           if (!user) {
             const newUserInfo = {
               first_name: completeName[0],
@@ -86,6 +102,7 @@ const initializePassport = () => {
               email: email,
               githubId: id,
               githubUsername: login,
+              cartId: cartId,
             };
 
             const newUser = await Users.create(newUserInfo);
@@ -101,8 +118,24 @@ const initializePassport = () => {
     )
   );
 
+  passport.use(
+    "jwt",
+    new JWTStrategy(
+      {
+        jwtFromRequest: jwt.ExtractJwt.fromExtractors([cookieExtractor]),
+        secretOrKey: tokenSecret,
+      },
+      (jwt_payload, done) => {
+        try {
+          done(null, jwt_payload);
+        } catch (error) {
+          done(error);
+        }
+      }
+    )
+  );
+
   passport.serializeUser((user, done) => {
-    console.log(user);
     done(null, user._id);
   });
 

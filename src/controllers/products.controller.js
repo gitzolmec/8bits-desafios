@@ -4,8 +4,13 @@ const productDAOfl = require("../DAO/Arrays/product-dao.file.js");
 const HTTP_RESPONSES = require("../constants/http-responses.constants.js");
 const productDAOMongo = require("../DAO/Mongo/product-dao.mongo.js");
 const authMiddleware = require("../middlewares/auth.middleware.js");
-let productManager;
+const passport = require("passport");
+const passportCall = require("../utils/passport-call.util.js");
+const cookieExtractor = require("../utils/cookie-extractor.util.js");
+const totalQuantity = require("../utils/total-quantity.util.js");
 
+let productManager;
+const usersDao = require("../DAO/Mongo/user-dao.mongo.js");
 // Función para manejar errores y enviar una respuesta con un código de estado 500
 const errorHandler = (err, res) => {
   if (err.statusCode === HTTP_RESPONSES.NOT_FOUND) {
@@ -15,23 +20,32 @@ const errorHandler = (err, res) => {
 
   res
     .status(HTTP_RESPONSES.INTERNAL_SERVER_ERROR)
-    .json({ error: "Internal Server Error" });
+    .json({ error: "Internal Server Errores" });
 };
 
 // Inicialización del ProductManager y definición de rutas
 (async () => {
   productManager = await new productDAOMongo();
+  user = await new usersDao();
   // productManager = await new productDAOfl("controllers/products.json");
 
   // Obtener todos los productos y renderizar la vista home.handlebars
-  router.get("/", authMiddleware, async (req, res) => {
+  router.get("/", passportCall("jwt"), async (req, res) => {
     try {
+      const tokenid = req.user.id;
+      if (!tokenid) {
+        res.redirect("/login");
+      }
+      const userInfo = await user.getUserById(tokenid);
+      const cartId = userInfo.cartId;
+      const totalProducts = await totalQuantity(cartId);
+      console.log(totalProducts);
       const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
       const sort = req.query.sort || 1;
       const page = req.query.page ? parseInt(req.query.page) : 1;
       const category = req.query.category || "";
-      const { user } = req.session;
-      const { first_name, last_name, role } = user;
+
+      const { first_name, last_name, role, _id } = userInfo;
       let adminValidation = "";
       if (role == "admin") {
         adminValidation = "admin";
@@ -83,6 +97,8 @@ const errorHandler = (err, res) => {
         last_name,
         role,
         adminValidation,
+        cartId,
+        totalProducts,
       });
     } catch (err) {
       errorHandler(err, res);
@@ -313,11 +329,16 @@ const errorHandler = (err, res) => {
     }
   });
 
-  router.get("/details/:pid", async (req, res) => {
+  router.get("/details/:pid", passportCall("jwt"), async (req, res) => {
     try {
+      const tokenid = req.user.id;
+
+      const userInfo = await user.getUserById(tokenid);
+
       const productId = req.params.pid;
-      const { user } = req.session;
-      const { first_name, last_name, role } = user;
+
+      const { first_name, last_name, role, cartId } = userInfo;
+      const totalProducts = await totalQuantity(cartId);
       const product = await productManager.getProductById(productId);
 
       const productrender = [product];
@@ -335,6 +356,9 @@ const errorHandler = (err, res) => {
         status,
         first_name,
         last_name,
+        role,
+        cartId,
+        totalProducts,
       });
     } catch (error) {
       console.log(error);

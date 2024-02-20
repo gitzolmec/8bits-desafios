@@ -6,25 +6,34 @@ const {
   useValidPassword,
   createHash,
 } = require("../utils/crypt.password.util");
+const { generateToken } = require("../utils/jwt.util");
+const passportCall = require("../utils/passport-call.util.js");
 
 router.post(
-  "/",
+  "/login",
   passport.authenticate("login", { failureRedirect: "/auth/fail-login" }),
   async (req, res) => {
     try {
-      req.session.user = {
-        first_name: req.user.first_name,
-        last_name: req.user.last_name,
-        email: req.user.email,
-        role: req.user.role,
-      };
+      const { email, password } = req.body;
+      const user = await Users.findOne({ email: email });
+      const token = generateToken({ id: user._id, role: user.role });
 
       const redirectURL = "/api/products";
-      res.status(200).json({
-        message: "Login successful",
-        user: req.session.user,
-        redirectURL,
-      });
+      const ms = require("ms");
+
+      // Duración de 1 hora
+      const horaEnMilisegundos = ms("1h");
+      res
+        .cookie("authToken", token, {
+          maxAge: horaEnMilisegundos,
+          httpOnly: true,
+        })
+        .status(200)
+        .json({
+          message: "Login successful",
+          user: token,
+          redirectURL,
+        });
     } catch (error) {
       console.log(error);
       res
@@ -41,15 +50,7 @@ router.get("/fail-login", (req, res) => {
 router.get("/logout", (req, res) => {
   console.log("logout");
   try {
-    req.session.destroy((err) => {
-      if (err) {
-        console.log("err");
-        console.log(err);
-        return res.json({ error: err });
-      }
-      console.log("redirect");
-      res.redirect("/api/login");
-    });
+    res.clearCookie("authToken").redirect("/api/login");
   } catch (error) {
     console.error("Error al destruir la sesión:", error);
     res.json({ error: "Error al destruir la sesión" });
@@ -63,10 +64,21 @@ router.get(
 
 router.get(
   "/githubcallback",
-  passport.authenticate("github", { failureRedirect: "/login" }),
-  (req, res) => {
-    req.session.user = req.user;
-    res.redirect("/api/products");
+  passport.authenticate("github", {
+    failureRedirect: "/login",
+  }),
+  async (req, res) => {
+    const token = generateToken({ id: req.user._id, role: req.user.role });
+    const ms = require("ms");
+
+    // Duración de 1 hora
+    const horaEnMilisegundos = ms("1h");
+    res
+      .cookie("authToken", token, {
+        maxAge: horaEnMilisegundos,
+        httpOnly: true,
+      })
+      .redirect("/api/products");
   }
 );
 

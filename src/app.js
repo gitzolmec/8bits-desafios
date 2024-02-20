@@ -35,6 +35,11 @@ io.on("connection", (socket) => {
     cartId = cartId.trim();
     await cart.addProductToCart(cartId, newProductId, quantity);
   });
+  socket.on("addProdToView", async ({ cartId, newProductId, quantity }) => {
+    cartId = cartId.trim();
+    const view = "details";
+    await cart.addProductToCart(cartId, newProductId, quantity, view);
+  });
 
   socket.on(
     "addProductFromView",

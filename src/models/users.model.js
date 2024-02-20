@@ -5,6 +5,7 @@ const userCollection = "user";
 const userSchema = new mongoose.Schema({
   first_name: String,
   last_name: String,
+  age: Number,
   email: {
     type: String,
     unique: true,
@@ -19,6 +20,7 @@ const userSchema = new mongoose.Schema({
   githubUsername: String,
   gmailId: Number,
   facebookId: Number,
+  cartId: mongoose.Schema.Types.ObjectId,
 });
 
 const Users = mongoose.model(userCollection, userSchema);

@@ -10,13 +10,18 @@ form.addEventListener("submit", (e) => {
   data.forEach((value, key) => (obj[key] = value));
 
   const fetchParams = {
-    url: "/api/auth",
+    url: "/api/auth/login",
     headers: {
       "Content-type": "application/json",
     },
     method: "POST",
     body: JSON.stringify(obj),
   };
+
+  const token = getCookie("authToken");
+  if (token) {
+    fetchParams.headers["Authorization"] = `Bearer ${token}`;
+  }
 
   fetch(fetchParams.url, {
     headers: fetchParams.headers,
@@ -30,10 +35,16 @@ form.addEventListener("submit", (e) => {
       return response.json();
     })
     .then((data) => {
-      console.log(data);
       if (data.redirectURL) {
         window.location.href = data.redirectURL; // Redirige a la URL proporcionada en la respuesta
       }
     })
-    .catch((error) => console.error(error));
+    .catch((error) => {
+      console.error("este es el error:", error.message);
+    });
 });
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(";").shift();
+}

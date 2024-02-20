@@ -1,32 +1,64 @@
 {
-  "name": "entregas-backend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "nodemon app.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "bcrypt": "^5.1.1",
-    "bootstrap": "^5.3.2",
-    "connect-mongo": "^5.1.0",
-    "cookie-parser": "^1.4.6",
-    "dotenv": "^16.4.1",
-    "express": "^4.18.2",
-    "express-handlebars": "^7.1.2",
-    "express-session": "^1.18.0",
-    "handlebars": "^4.7.8",
-    "mongoose": "^8.1.0",
-    "mongoose-paginate-v2": "^1.8.0",
-    "passport": "^0.7.0",
-    "passport-github2": "^0.1.12",
-    "passport-local": "^1.0.0",
-    "session-file-store": "^1.5.0",
-    "socket.io": "^4.7.2",
-    "socket.io-client": "^4.7.2"
-  }
+	"name": "entregas-backend",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start:dev": "nodemon app.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"bcrypt": "^5.1.1",
+		"bootstrap": "^5.3.2",
+		"connect-mongo": "^5.1.0",
+		"cookie-parser": "^1.4.6",
+		"dotenv": "^16.4.1",
+		"express": "^4.18.2",
+		"express-handlebars": "^7.1.2",
+		"express-session": "^1.18.0",
+		"handlebars": "^4.7.8",
+		"jsonwebtoken": "^9.0.2",
+		"mongoose": "^8.1.0",
+		"mongoose-paginate-v2": "^1.8.0",
+		"passport": "^0.7.0",
+		"passport-github2": "^0.1.12",
+		"passport-jwt": "^4.0.1",
+		"passport-local": "^1.0.0",
+		"session-file-store": "^1.5.0",
+		"socket.io": "^4.7.2",
+		"socket.io-client": "^4.7.2"
+	},
+	"Transform": "AWS::Serverless-2016-10-31",
+	"Resources": {
+		"Api": {
+			"Type": "AWS::Serverless::Api",
+			"Properties": {
+				"Name": {
+					"Fn::Sub": [
+						"${ResourceName} From Stack ${AWS::StackName}",
+						{
+							"ResourceName": "Api"
+						}
+					]
+				},
+				"StageName": "Prod",
+				"DefinitionBody": {
+					"openapi": "3.0",
+					"info": {},
+					"paths": {
+						"/": {
+							"get": {
+								"responses": {}
+							}
+						}
+					}
+				},
+				"EndpointConfiguration": "REGIONAL",
+				"TracingEnabled": true
+			}
+		}
+	}
 }

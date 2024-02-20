@@ -3,7 +3,8 @@ const router = Router();
 const cartDAOFl = require("../DAO/Arrays/cart-dao.file");
 const cartDaoMongo = require("../DAO/Mongo/cart-dao.mongo");
 const authMiddleware = require("../middlewares/auth.middleware.js");
-
+const passportCall = require("../utils/passport-call.util.js");
+const totalQuantity = require("../utils/total-quantity.util.js");
 let cartManager;
 
 const errorHandler = (err, res) => {
@@ -19,13 +20,15 @@ const errorHandler = (err, res) => {
     try {
       console.log("Creando carrito");
       const cart = await cartManager.addCart();
-      res.json({ cart });
+      const idcart = cart._id;
+      console.log("Carrito creado:", idcart);
+      res.json({ idcart });
     } catch (err) {
       errorHandler(err, res);
     }
   });
 
-  router.get("/", authMiddleware, async (req, res) => {
+  router.get("/", passportCall("jwt"), async (req, res) => {
     try {
       const cart = await cartManager.getCarts();
       res.json({ cart });
@@ -34,12 +37,16 @@ const errorHandler = (err, res) => {
     }
   });
 
-  router.get("/:cid", authMiddleware, async (req, res) => {
+  router.get("/:cid", passportCall("jwt"), async (req, res) => {
     try {
-      const cartId = req.params.cid;
-      const { user } = req.session;
-      const { first_name, last_name } = user;
+      const tokenid = req.user.id;
+      // const cartId = req.params.cid;
+
+      const userInfo = await user.getUserById(tokenid);
+      const { first_name, last_name, cartId } = userInfo;
+      console.log(`$${cartId}`);
       const cart = await cartManager.getCartById(cartId);
+      const totalQuantity = await cartManager.totalQuantity(cartId);
 
       if (cart) {
         // Mapear los productos y agregar la propiedad quantity
@@ -53,6 +60,7 @@ const errorHandler = (err, res) => {
           cartId,
           first_name,
           last_name,
+          totalQuantity,
         });
       } else {
         res.status(404).json({ error: "Carrito no encontrado" });

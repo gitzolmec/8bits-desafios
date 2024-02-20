@@ -1,5 +1,5 @@
 const Carts = require("../../models/carts.model");
-
+const totalQuantity = require("../../utils/total-quantity.util");
 class cartDao {
   async getCarts() {
     const cart = await Carts.find({}, { __v: 0 }).populate("products.id");
@@ -8,7 +8,6 @@ class cartDao {
   }
 
   async getCartById(id) {
-    console.log(id);
     return await Carts.findOne({ _id: id }, { __v: 0 })
       .populate("products.id")
       .lean();
@@ -27,7 +26,7 @@ class cartDao {
     }
   }
 
-  async addProductToCart(cartId, productId, quantity) {
+  async addProductToCart(cartId, productId, quantity, view) {
     try {
       // Buscar el carrito por ID
 
@@ -50,10 +49,10 @@ class cartDao {
 
       // Guardar el carrito actualizado en la base de datos
       await cart.save();
-      console.log("producto agregado al carrito");
+      const totalProducts = await totalQuantity(cartId);
       const { io } = require("../../app");
 
-      io.emit("cartUpdated", cart);
+      io.emit("cartUpdated", cart, totalProducts, view);
     } catch (error) {
       console.error(error);
       throw new Error("Error al agregar el producto al carrito");
@@ -110,9 +109,11 @@ class cartDao {
           this.deleteProductFromCart(cartId, productId);
         }
         await cart.save();
+        const totalProducts = await totalQuantity(cartId);
+
         const { io } = require("../../app");
 
-        io.emit("oneProductDeleted", cart);
+        io.emit("oneProductDeleted", cart, totalProducts);
       } else {
         throw new Error("Producto no encontrado en el carrito");
       }
@@ -133,16 +134,16 @@ class cartDao {
       const productIndex = cart.products.findIndex((product) =>
         product.id.equals(productId)
       );
-      console.log("cartId, productId: ", cartId, productId);
+
       if (productIndex === -1) {
         throw new Error("Producto no encontrado en el carrito");
       }
       cart.products.splice(productIndex, 1);
       await cart.save();
-
+      const totalProducts = await totalQuantity(cartId);
       const { io } = require("../../app");
 
-      io.emit("ProductDeleted", productId);
+      io.emit("ProductDeleted", productId, totalProducts);
 
       return cart;
     } catch (error) {
@@ -162,6 +163,26 @@ class cartDao {
     } catch (err) {
       console.log(err);
     }
+  }
+
+  async totalQuantity(cartId) {
+    try {
+      const cart = await Carts.findOne({ _id: cartId });
+      if (!cart) {
+        throw new Error("Carrito no encontrado");
+      }
+      const currentCart = cart.products;
+      let quantity = 0;
+
+      currentCart.forEach((product) => {
+        quantity += product.quantity;
+      });
+
+      return quantity;
+    } catch (err) {
+      console.log(err);
+    }
+    return 0; // Default value if cart is not found or has no products.
   }
 }
 
