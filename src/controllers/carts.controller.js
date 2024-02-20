@@ -40,11 +40,10 @@ const errorHandler = (err, res) => {
   router.get("/:cid", passportCall("jwt"), async (req, res) => {
     try {
       const tokenid = req.user.id;
-      // const cartId = req.params.cid;
 
       const userInfo = await user.getUserById(tokenid);
       const { first_name, last_name, cartId } = userInfo;
-      console.log(`$${cartId}`);
+
       const cart = await cartManager.getCartById(cartId);
       const totalQuantity = await cartManager.totalQuantity(cartId);
 

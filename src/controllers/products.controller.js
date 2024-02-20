@@ -39,7 +39,6 @@ const errorHandler = (err, res) => {
       const userInfo = await user.getUserById(tokenid);
       const cartId = userInfo.cartId;
       const totalProducts = await totalQuantity(cartId);
-      console.log(totalProducts);
       const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
       const sort = req.query.sort || 1;
       const page = req.query.page ? parseInt(req.query.page) : 1;

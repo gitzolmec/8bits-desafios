@@ -3,13 +3,10 @@ const { Server } = require("socket.io");
 const app = require("./server");
 const chatDAOMongo = require("./DAO/Mongo/chat-dao.mongo");
 const cartDaoMongo = require("./DAO/Mongo/cart-dao.mongo");
-const productDaoMongo = require("./DAO/Mongo/product-dao.mongo");
-const mongoose = require("mongoose");
 
 const chats = [];
 const chat = new chatDAOMongo();
 const cart = new cartDaoMongo();
-const product = new productDaoMongo();
 
 const httpServer = app.listen(port, () => {
   console.log(`Servidor escuchando en el puerto ${port}`);
