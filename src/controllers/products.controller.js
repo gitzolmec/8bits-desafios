@@ -74,7 +74,6 @@ const errorHandler = (err, res) => {
       let pSort = 0;
       if (sort == 1) {
         pSort = "asc";
-        git;
       } else {
         pSort = "desc";
       }
@@ -99,7 +98,8 @@ const errorHandler = (err, res) => {
         totalProducts,
       });
     } catch (err) {
-      errorHandler(err, res);
+      //errorHandler(err, res);
+      console.log(err);
     }
   });
 
