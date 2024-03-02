@@ -4,9 +4,7 @@ const productDAOfl = require("../DAO/Arrays/product-dao.file.js");
 const HTTP_RESPONSES = require("../constants/http-responses.constants.js");
 const productDAOMongo = require("../DAO/Mongo/product-dao.mongo.js");
 const authMiddleware = require("../middlewares/auth.middleware.js");
-const passport = require("passport");
 const passportCall = require("../utils/passport-call.util.js");
-const cookieExtractor = require("../utils/cookie-extractor.util.js");
 const totalQuantity = require("../utils/total-quantity.util.js");
 
 let productManager;
@@ -76,6 +74,7 @@ const errorHandler = (err, res) => {
       let pSort = 0;
       if (sort == 1) {
         pSort = "asc";
+        git;
       } else {
         pSort = "desc";
       }
@@ -98,55 +97,6 @@ const errorHandler = (err, res) => {
         adminValidation,
         cartId,
         totalProducts,
-      });
-    } catch (err) {
-      errorHandler(err, res);
-    }
-  });
-
-  // Obtener todos los productos y renderizar la vista realtimeproducts.handlebars
-  router.get("/realtimeproducts", authMiddleware, async (req, res) => {
-    try {
-      const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
-      const sort = req.query.sort || 1;
-      const page = req.query.page ? parseInt(req.query.page) : 1;
-      const category = req.query.category || "";
-
-      const products = await productManager.getProducts(
-        limit,
-        page,
-        sort,
-        category
-      );
-      const paginationInfo = products[products.length - 1];
-
-      // Acceder a las propiedades de paginación
-      const totalPages = paginationInfo.totalPages;
-      const pages = paginationInfo.page;
-      const hasPrevPage = paginationInfo.hasPrevPage;
-      const hasNextPage = paginationInfo.hasNextPage;
-      const prevPage = paginationInfo.prevPage;
-      const nextPage = paginationInfo.nextPage;
-      const pLimit = paginationInfo.limit;
-      let pSort = 0;
-      if (sort == 1) {
-        pSort = "asc";
-      } else {
-        pSort = "desc";
-      }
-
-      // Imprimir o utilizar las propiedades
-
-      res.render("realTimeProducts.handlebars", {
-        products,
-        totalPages,
-        pages,
-        hasPrevPage,
-        hasNextPage,
-        prevPage,
-        nextPage,
-        pLimit,
-        pSort,
       });
     } catch (err) {
       errorHandler(err, res);
