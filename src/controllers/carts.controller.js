@@ -10,6 +10,15 @@ const { create } = require("connect-mongo");
 const {
   createTicket,
   addProductToCart,
+  addCart,
+  getCarts,
+  getCartById,
+  getCartUserInfo,
+  getCartTotalQuantity,
+  updateCartWithProductList,
+  updateProductQuantityInCart,
+  deleteProductFromCart,
+  deleteCart,
 } = require("../services/carts.service.js");
 const userAuthMiddleware = require("../middlewares/user-validation.middleware.js");
 let cartManager;
@@ -26,7 +35,7 @@ const errorHandler = (err, res) => {
     // Crear un nuevo carrito
     try {
       console.log("Creando carrito");
-      const cart = await cartManager.addCart();
+      const cart = await addCart();
       const idcart = cart._id;
       console.log("Carrito creado:", idcart);
       res.json({ idcart });
@@ -37,7 +46,7 @@ const errorHandler = (err, res) => {
 
   router.get("/", passportCall("jwt"), async (req, res) => {
     try {
-      const cart = await cartManager.getCarts();
+      const cart = await getCarts();
       res.json({ cart });
     } catch (err) {
       errorHandler(err, res);
@@ -48,11 +57,12 @@ const errorHandler = (err, res) => {
     try {
       const tokenid = req.user.id;
 
-      const userInfo = await getUserById(tokenid);
+      const userInfo = await getCartUserInfo(tokenid);
       const { first_name, last_name, cartId } = userInfo;
 
-      const cart = await cartManager.getCartById(cartId);
-      const totalQuantity = await cartManager.totalQuantity(cartId);
+      const cart = await getCartById(cartId);
+      console.log(cart);
+      const totalQuantity = await getCartTotalQuantity(cartId);
 
       if (cart) {
         // Mapear los productos y agregar la propiedad quantity
@@ -99,7 +109,7 @@ const errorHandler = (err, res) => {
       const cartId = req.params.cid;
       const productsList = req.body;
 
-      await cartManager.updateCartWithProductList(cartId, productsList);
+      await updateCartWithProductList(cartId, productsList);
 
       res.json({
         message: `carrito con ID ${cartId} actualizado con exito: `,
@@ -116,11 +126,7 @@ const errorHandler = (err, res) => {
       const productId = req.params.pid;
       const quantity = req.body.quantity;
 
-      await cartManager.updateProductQuantityInCart(
-        cartId,
-        productId,
-        quantity
-      );
+      await updateProductQuantityInCart(cartId, productId, quantity);
 
       res.json({
         message: `carrito con ID ${cartId} actualizado con exito: `,
@@ -136,10 +142,7 @@ const errorHandler = (err, res) => {
       const cartId = req.params.cid;
       const productId = req.params.pid;
 
-      const deletedProduct = await cartManager.deleteProductFromCart(
-        cartId,
-        productId
-      );
+      const deletedProduct = await deleteProductFromCart(cartId, productId);
 
       res.json({
         message: `Producto con ID ${productId} eliminado con exito del carrito ${cartId}`,
@@ -154,7 +157,7 @@ const errorHandler = (err, res) => {
     try {
       const cartId = req.params.cid;
 
-      const deleted = await cartManager.deleteCart(cartId);
+      const deleted = await deleteCart(cartId);
 
       res.json({
         message: `Carrito con ID ${cartId} vaciado con exito`,

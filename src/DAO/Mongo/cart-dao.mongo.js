@@ -12,6 +12,7 @@ class cartDao {
   }
 
   async getCartById(id) {
+    console.log(id);
     return await Carts.findOne({ _id: id }, { __v: 0 })
       .populate("products.id")
       .lean();
@@ -170,6 +171,7 @@ class cartDao {
       }
       cart.products = [];
       await cart.save();
+      return cart;
     } catch (err) {
       console.log(err);
     }

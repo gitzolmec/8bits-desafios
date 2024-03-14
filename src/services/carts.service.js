@@ -4,6 +4,43 @@ const { getUserById, updateUser } = require("./users.service");
 const transporter = require("../utils/nodemailer.util");
 const cart = new cartDao();
 
+const getCartById = async (id) => {
+  console.log("llegamos aca", id);
+
+  const thisCart = await cart.getCartById(id);
+  console.log(thisCart);
+  return thisCart;
+};
+
+const getCarts = async () => {
+  const carts = await cart.getCarts();
+  return carts;
+};
+const addCart = async () => {
+  const newCart = await cart.addCart();
+  return newCart;
+};
+
+const getCartUserInfo = async (id) => {
+  const userInfo = await getUserById(id);
+  return userInfo;
+};
+
+const getCartTotalQuantity = async (cartId) => {
+  const totalQuantity = await cart.totalQuantity(cartId);
+  return totalQuantity;
+};
+
+const deleteProductFromCart = async (cartId, productId) => {
+  const cart = await cart.deleteProductFromCart(cartId, productId);
+  return cart;
+};
+
+const deleteCart = async (cartId) => {
+  const cart = await cart.deleteCart(cartId);
+  return cart;
+};
+
 const checkoutCart = async (cartId) => {
   const checkoutInfo = await cart.checkoutCart(cartId);
   return checkoutInfo;
@@ -29,8 +66,17 @@ const createTicket = async (req, totalprice, purchaseDetails) => {
   return ticket;
 };
 
-const getCartById = async (id) => {
-  const cart = await cart.getCartById(id);
+const updateCartWithProductList = async (cartId, productList) => {
+  const UpdatedCart = await cart.updateCartWithProductList(cartId, productList);
+  return UpdatedCart;
+};
+
+const updateProductQuantityInCart = async (cartId, productId, quantity) => {
+  const cart = await cart.updateProductQuantityInCart(
+    cartId,
+    productId,
+    quantity
+  );
   return cart;
 };
 
@@ -60,7 +106,17 @@ const sendEmail = async (
     text-align: center;
     align-items: center;
   }
-</style><table ><tr><th>Cantidad</th><th>Producto</th><th>Precio</th></tr>${content}<tr><td>TOTAL:</td><td> ${amount}</td></tr></table>`;
+
+  .tableEmail{
+    width: 100%;
+  }
+
+  .total{
+    font-weight: bold;
+    text-align: right;
+    margin-right: 10px;
+  }
+</style><table class="tableEmail" ><tr><th>Cantidad</th><th>Producto</th><th>Precio</th></tr>${content}<tr><td>TOTAL:</td><td colspan="2" class="total"> ${amount}</td></tr></table>`;
   const MailInfo = await transporter.sendMail({
     from: '"8-bits 🎮" <jorgemorales.600@gmail.com>',
     to: "jorgemorales_1991@hotmail.com",
@@ -72,4 +128,17 @@ const sendEmail = async (
   console.log("Message sent: %s", MailInfo.messageId);
 };
 
-module.exports = { createTicket, checkoutCart, getCartById, addProductToCart };
+module.exports = {
+  createTicket,
+  checkoutCart,
+  getCartById,
+  addProductToCart,
+  addCart,
+  getCarts,
+  getCartUserInfo,
+  getCartTotalQuantity,
+  updateCartWithProductList,
+  updateProductQuantityInCart,
+  deleteProductFromCart,
+  deleteCart,
+};

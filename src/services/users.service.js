@@ -29,4 +29,8 @@ const getPurchases = async (req) => {
   return purchaseHistory;
 };
 
-module.exports = { getUserById, updateUser, getPurchases };
+const deleteUser = async (id) => {
+  return await Users.deleteUser(id);
+};
+
+module.exports = { getUserById, updateUser, getPurchases, deleteUser };

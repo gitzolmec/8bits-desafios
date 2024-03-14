@@ -19,6 +19,10 @@ class UserDao {
 
     return purchaseHistory;
   }
+
+  async deleteUser(id) {
+    return await Users.findByIdAndDelete(id);
+  }
 }
 
 module.exports = UserDao;
