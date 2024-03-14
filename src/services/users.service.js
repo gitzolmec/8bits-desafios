@@ -33,4 +33,14 @@ const deleteUser = async (id) => {
   return await Users.deleteUser(id);
 };
 
-module.exports = { getUserById, updateUser, getPurchases, deleteUser };
+const getUserListForAdmins = async () => {
+  return await Users.getUserListForAdmins();
+};
+
+module.exports = {
+  getUserById,
+  updateUser,
+  getPurchases,
+  deleteUser,
+  getUserListForAdmins,
+};

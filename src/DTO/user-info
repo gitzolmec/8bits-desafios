@@ -4,6 +4,8 @@ class UserResponseDto {
     this.lastname = userInfo.last_name;
     this.email = userInfo.email;
     this.age = userInfo.age;
+    this.role = userInfo.role;
+    this.cartId = userInfo.cartId;
   }
 }
 

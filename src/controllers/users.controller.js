@@ -4,9 +4,14 @@ const adminAuthMiddleware = require("../middlewares/admin-validation.middleware"
 const router = Router();
 const passport = require("passport");
 const passportCall = require("../utils/passport-call.util");
-const { getUserById, getPurchases } = require("../services/users.service");
+const {
+  getUserById,
+  getPurchases,
+  getUserListForAdmins,
+} = require("../services/users.service");
 const totalQuantity = require("../utils/total-quantity.util");
 const UserResponseDto = require("../DTO/user-info");
+const adminValidation = require("../utils/admin-validation.util");
 
 router.post(
   "/",
@@ -34,17 +39,12 @@ router.get(
   adminAuthMiddleware,
   async (req, res) => {
     try {
-      const list = [];
-      const user = await Users.find({}, { __v: 0 });
-      user.forEach((users) => {
-        const first_name = users.first_name;
-        const last_name = users.last_name;
-        const email = users.email;
-        const role = users.role;
-        list.push({ first_name, last_name, email, role });
-      });
+      const tokenid = req.user.id;
+      const userInfo = await getUserById(tokenid);
+      const userInfoDto = new UserResponseDto(userInfo);
+      const list = await getUserListForAdmins();
 
-      res.render("users-list.handlebars", { list });
+      res.render("users-list.handlebars", { list, userInfoDto });
     } catch (error) {
       console.log(error);
       res
@@ -61,25 +61,16 @@ router.get("/fail-register", (req, res) => {
 
 router.get("/current", passportCall("jwt"), async (req, res) => {
   try {
-    console.log("llegamos");
     const tokenid = req.user.id;
-
     const userInfo = await getUserById(tokenid);
-    const { role, cartId } = userInfo;
-    const totalProducts = await totalQuantity(cartId);
-
-    let adminValidation = "";
-    if (role == "admin") {
-      adminValidation = "admin";
-    }
     const userInfoDto = new UserResponseDto(userInfo);
-    console.log(userInfoDto);
+    const totalProducts = await totalQuantity(userInfoDto.cartId);
+    const userValidation = adminValidation(userInfoDto.role);
+
     res.render("user-detail.handlebars", {
       userInfoDto,
-      role,
-      adminValidation,
+      userValidation,
       totalProducts,
-      cartId,
     });
   } catch (error) {
     console.log(error);
@@ -90,12 +81,7 @@ router.get("/current", passportCall("jwt"), async (req, res) => {
 router.get("/purchaseHistory", passportCall("jwt"), async (req, res) => {
   try {
     const purchaseHistory = await getPurchases(req);
-    const details = purchaseHistory.map((item) => item.details);
 
-    purchaseHistory.forEach((item) => {
-      item.details = item.details.map((detail) => detail.title);
-    });
-    console.log(purchaseHistory);
     res.render("purchase-history.handlebars", { purchaseHistory });
   } catch (error) {
     console.log(error);

@@ -80,7 +80,10 @@ const updateProductQuantityInCart = async (cartId, productId, quantity) => {
   return cart;
 };
 
-const addProductToCart = async (cartId, productId, quantity) => {
+const addProductToCart = async (req) => {
+  const cartId = req.params.cid;
+  const productId = req.params.pid;
+  const quantity = req.body.quantity || 1;
   const cart = await cart.addProductToCart(cartId, productId, quantity);
   return cart;
 };

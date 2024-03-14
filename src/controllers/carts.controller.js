@@ -89,14 +89,10 @@ const errorHandler = (err, res) => {
   router.post("/:cid/products/:pid", userAuthMiddleware, async (req, res) => {
     // Agregar un producto al carrito
     try {
-      const cartId = req.params.cid;
-      const productId = req.params.pid;
-      const quantity = req.body.quantity || 1;
-
-      await addProductToCart(cartId, productId, quantity);
+      const { cartId, productId, quantity } = await addProductToCart(req);
 
       res.json({
-        message: `Producto con ID ${productId} agregado al carrito ${cartId}: `,
+        message: `Producto con ID ${productId} agregado al carrito ${cartId}, unidades agregadas: ${quantity}`,
       });
     } catch (err) {
       errorHandler(err, res);
@@ -120,7 +116,7 @@ const errorHandler = (err, res) => {
   });
 
   router.put("/:cid/products/:pid", async (req, res) => {
-    // Agregar un producto al carrito
+    // actualizar la cantidad de un producto en el carrito
     try {
       const cartId = req.params.cid;
       const productId = req.params.pid;
