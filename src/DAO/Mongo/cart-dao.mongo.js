@@ -1,5 +1,9 @@
 const Carts = require("../../models/carts.model");
+const Tickets = require("../../models/tickets.model");
+const { getProductById } = require("../../services/product.service");
+const formatDate = require("../../utils/format-date.util");
 const totalQuantity = require("../../utils/total-quantity.util");
+
 class cartDao {
   async getCarts() {
     const cart = await Carts.find({}, { __v: 0 }).populate("products.id");
@@ -89,6 +93,7 @@ class cartDao {
   }
 
   async updateProductQuantityInCart(cartId, productId, quantity) {
+    console.log("DATOS: ", cartId, productId, quantity);
     try {
       const cart = await Carts.findOne({ _id: cartId });
       if (!cart) {
@@ -96,14 +101,18 @@ class cartDao {
       }
 
       // Busca el índice del producto en el carrito
-      const productIndex = cart.products.findIndex(
-        (p) => p.id._id.toString() === productId
+      const productIndex = cart.products.findIndex((p) =>
+        p.id.equals(productId)
       );
 
       if (productIndex !== -1) {
         // Si el producto existe, actualiza la cantidad
         const product = cart.products[productIndex].quantity;
-        if (product > 1) {
+
+        if (product > 1 && quantity) {
+          console.log("ENTRA AQUI");
+          cart.products[productIndex].quantity -= quantity;
+        } else if (product > 1 && !quantity) {
           cart.products[productIndex].quantity -= 1;
         } else if (product <= 1) {
           this.deleteProductFromCart(cartId, productId);
@@ -117,6 +126,7 @@ class cartDao {
       } else {
         throw new Error("Producto no encontrado en el carrito");
       }
+      return cart.products;
     } catch (error) {
       console.error(error);
       throw new Error(
@@ -182,7 +192,110 @@ class cartDao {
     } catch (err) {
       console.log(err);
     }
-    return 0; // Default value if cart is not found or has no products.
+    return 0;
+  }
+
+  async checkoutCart(cartId) {
+    try {
+      let stock = true;
+      let pendingProducts = false;
+      const cart = await Carts.findOne({ _id: cartId });
+      const purchaseDetails = [];
+      let totalprice = 0;
+      if (!cart) {
+        throw new Error("Carrito no encontrado");
+      }
+      const products = cart.products;
+      for (const product of products) {
+        const productId = product.id;
+        const productDetails = await getProductById(productId);
+
+        if (productDetails.stock === 0) {
+          console.log(
+            `El producto ${productDetails.title} no tiene stock disponible. Se omitirá de la compra.`
+          );
+          stock = false;
+        } else if (
+          productDetails.stock > 0 &&
+          productDetails.stock < product.quantity
+        ) {
+          console.log(
+            `No hay stock suficiente para el producto ${productDetails.title}`
+          );
+          pendingProducts = true;
+          const availableStock = productDetails.stock;
+          const price = productDetails.price * availableStock;
+          totalprice += price;
+
+          productDetails.stock = 0;
+          productDetails.status = false;
+
+          purchaseDetails.push({
+            title: productDetails.title,
+            quantity: availableStock,
+            price: totalprice,
+          });
+
+          await this.updateProductQuantityInCart(
+            cartId,
+            productId,
+            availableStock
+          );
+
+          await cart.save();
+        } else {
+          const price = productDetails.price * product.quantity;
+          totalprice += price;
+          productDetails.stock -= product.quantity;
+          await this.deleteProductFromCart(cartId, productId);
+          purchaseDetails.push({
+            title: productDetails.title,
+            quantity: product.quantity,
+            price: price,
+          });
+        }
+
+        productDetails.save();
+      }
+
+      if (pendingProducts === true) {
+        const Products = await Carts.findById(cartId);
+        const productsNotAvailable = Products.products;
+        console.log(
+          "Productos no incluidos en la compra por falta de stock: ",
+          productsNotAvailable
+        );
+        return { purchaseDetails, totalprice, productsNotAvailable };
+      }
+      return { purchaseDetails, totalprice, stock };
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async createTicket(purchaser, code, amount, purchaseDetails) {
+    try {
+      if (amount === 0) {
+        throw new Error("no hay productos para generar una compra");
+      }
+      const details = purchaseDetails.map((detail) => {
+        return {
+          title: detail.title,
+        };
+      });
+
+      const ticket = await Tickets.create({
+        purchaser,
+        details,
+        code,
+        amount,
+      });
+      return ticket;
+    } catch (err) {
+      console.log(err);
+    }
+    {
+    }
   }
 }
 

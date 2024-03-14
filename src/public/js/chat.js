@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       username = await Swal.fire({
         title: "Bienvenido al CoderChat",
-        text: "Ingresa tu usuario para identificarte",
+        text: "Ingresa un nombre de usuario para identificarte",
         input: "text",
         icon: "success",
       });

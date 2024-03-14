@@ -4,6 +4,21 @@ class UserDao {
   async getUserById(id) {
     return await Users.findById(id);
   }
+  async updateUser(id, purchaseId) {
+    return await Users.findByIdAndUpdate(id, {
+      $push: { purchase_history: purchaseId },
+    });
+  }
+
+  async getPurchases(id) {
+    const purchases = await Users.findById(id)
+      .populate("purchase_history")
+      .lean();
+
+    const purchaseHistory = purchases.purchase_history;
+
+    return purchaseHistory;
+  }
 }
 
 module.exports = UserDao;

@@ -25,17 +25,24 @@
           Cerrar Sesión
         </button>
       </li>
-       <li> <button
+       <li> {{#if adminValidation}}<button
           class="btn btn-outline-light btn-sm"
           id="user-admin"
-          {{#if adminValidation}}
-  onclick="location.href='/api/users/list'"
+          
+  onclick="location.href='/api/users/list'">Mantenedor de usuarios</button>
   {{else}}
-  style="display: none;"
-{{/if}} 
+  <button
+          class="btn btn-outline-light btn-sm"
+          id="chatButton"
+          onclick="location.href='/api/chat'"
         >
-          Mantenedor de usuarios
-        </button></li>
+          CHAT
+        </button>
+{{/if}} 
+        
+          
+        </li>
+       <li><button class="btn btn-outline-light btn-sm" onclick="location.href='/api/users/current'">Perfil</button></li>
     </ul>
   </nav>
 </header>

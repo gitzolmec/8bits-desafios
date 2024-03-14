@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
   gmailId: Number,
   facebookId: Number,
   cartId: mongoose.Schema.Types.ObjectId,
+  purchase_history: [{ type: mongoose.Schema.Types.ObjectId, ref: "ticket" }],
 });
 
 const Users = mongoose.model(userCollection, userSchema);

@@ -1,0 +1,105 @@
+<header>
+  <nav class="navbar navbar-light bg-dark min-vw-100">
+    <a href="/api/products">
+      <img src="/img/logo-2019.png" width="300px" />
+    </a>
+    <div class="welcome-message text-white">
+      Bienvenido/a, {{first_name}} {{last_name}}<br />
+      Role: {{role}}
+    </div>
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a
+          class="nav-link text-white fw-bold cart"
+          href="/api/carts/{{cartId}}"
+        >
+          <i class="bi bi-cart mx-5" id="carritoContenedor">
+            {{totalProducts}}
+          </i>
+        </a>
+      </li>
+      <li class="nav-item">
+        <button
+          class="btn btn-outline-light btn-sm"
+          id="logoutButton"
+          onclick="location.href='/api/auth/logout'"
+        >
+          Cerrar Sesión
+        </button>
+      </li>
+      <li>
+        {{#if adminValidation}}
+          <button
+            class="btn btn-outline-light btn-sm"
+            id="user-admin"
+            onclick="location.href='/api/users/list'"
+          >
+            Mantenedor de usuarios
+          </button>
+        {{else}}
+          <button
+            class="btn btn-outline-light btn-sm"
+            id="chatButton"
+            onclick="location.href='/api/chat'"
+          >
+            CHAT
+          </button>
+        {{/if}}
+      </li>
+      <li>
+        <button
+          class="btn btn-outline-light btn-sm"
+          onclick="location.href='/api/users/current'"
+        >
+          Perfil
+        </button>
+      </li>
+    </ul>
+  </nav>
+</header>
+<div class="container mt-5">
+  <h1 class="text-white text-center">
+    Historial de Compras
+  </h1>
+  <table class="table table-bordered">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">
+          N° de Compra
+        </th>
+        <th scope="col">
+          Detalle
+        </th>
+        <th scope="col">
+          Monto
+        </th>
+        <th scope="col">
+          Fecha
+        </th>
+      </tr>
+    </thead>
+    {{#each purchaseHistory}}
+      <tbody>
+        <tr>
+          <td>
+            {{this._id}}
+          </td>
+          <td>
+            {{#each this.details}}
+              {{this}}
+              <br />
+            {{/each}}
+          </td>
+          <td>
+            {{this.amount}}
+          </td>
+          <td>
+            {{this.purchase_datetime}}
+          </td>
+        </tr>
+
+        <!-- Agrega más filas según tus datos -->
+      </tbody>
+    {{/each}}
+  </table>
+</div>

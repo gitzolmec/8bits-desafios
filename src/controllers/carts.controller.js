@@ -5,6 +5,13 @@ const cartDaoMongo = require("../DAO/Mongo/cart-dao.mongo");
 const authMiddleware = require("../middlewares/auth.middleware.js");
 const passportCall = require("../utils/passport-call.util.js");
 const totalQuantity = require("../utils/total-quantity.util.js");
+const { getUserById } = require("../services/users.service.js");
+const { create } = require("connect-mongo");
+const {
+  createTicket,
+  addProductToCart,
+} = require("../services/carts.service.js");
+const userAuthMiddleware = require("../middlewares/user-validation.middleware.js");
 let cartManager;
 
 const errorHandler = (err, res) => {
@@ -41,7 +48,7 @@ const errorHandler = (err, res) => {
     try {
       const tokenid = req.user.id;
 
-      const userInfo = await user.getUserById(tokenid);
+      const userInfo = await getUserById(tokenid);
       const { first_name, last_name, cartId } = userInfo;
 
       const cart = await cartManager.getCartById(cartId);
@@ -69,14 +76,14 @@ const errorHandler = (err, res) => {
     }
   });
 
-  router.post("/:cid/products/:pid", async (req, res) => {
+  router.post("/:cid/products/:pid", userAuthMiddleware, async (req, res) => {
     // Agregar un producto al carrito
     try {
       const cartId = req.params.cid;
       const productId = req.params.pid;
       const quantity = req.body.quantity || 1;
 
-      await cartManager.addProductToCart(cartId, productId, quantity);
+      await addProductToCart(cartId, productId, quantity);
 
       res.json({
         message: `Producto con ID ${productId} agregado al carrito ${cartId}: `,
@@ -123,8 +130,8 @@ const errorHandler = (err, res) => {
     }
   });
 
-  router.delete("/:cid/products/:pid", async (req, res) => {
-    // Agregar un producto al carrito
+  router.delete("/:cid/products/:pid", userAuthMiddleware, async (req, res) => {
+    // eliminar un producto al carrito
     try {
       const cartId = req.params.cid;
       const productId = req.params.pid;
@@ -142,6 +149,7 @@ const errorHandler = (err, res) => {
       errorHandler(err, res);
     }
   });
+  //eliminar carrito
   router.delete("/:cid", async (req, res) => {
     try {
       const cartId = req.params.cid;
@@ -151,6 +159,27 @@ const errorHandler = (err, res) => {
       res.json({
         message: `Carrito con ID ${cartId} vaciado con exito`,
       });
+    } catch (err) {
+      errorHandler(err, res);
+    }
+  });
+  //finalizar compra
+  router.get("/:cid/purchase", passportCall("jwt"), async (req, res) => {
+    try {
+      const cartId = req.params.cid;
+
+      const { totalprice, purchaseDetails, stock } =
+        await cartManager.checkoutCart(cartId);
+      if (stock === false) {
+        console.log("No hay stock suficiente");
+        setTimeout(() => {
+          res.redirect("/api/products");
+        }, 5000);
+
+        return;
+      }
+      const ticket = await createTicket(req, totalprice, purchaseDetails);
+      res.redirect("/api/products");
     } catch (err) {
       errorHandler(err, res);
     }

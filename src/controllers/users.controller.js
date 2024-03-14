@@ -4,6 +4,9 @@ const adminAuthMiddleware = require("../middlewares/admin-validation.middleware"
 const router = Router();
 const passport = require("passport");
 const passportCall = require("../utils/passport-call.util");
+const { getUserById, getPurchases } = require("../services/users.service");
+const totalQuantity = require("../utils/total-quantity.util");
+const UserResponseDto = require("../DTO/user-info");
 
 router.post(
   "/",
@@ -58,18 +61,42 @@ router.get("/fail-register", (req, res) => {
 
 router.get("/current", passportCall("jwt"), async (req, res) => {
   try {
+    console.log("llegamos");
     const tokenid = req.user.id;
 
-    const userInfo = await user.getUserById(tokenid);
-    const { first_name, last_name, age, email, role } = userInfo;
-    console.log(first_name);
+    const userInfo = await getUserById(tokenid);
+    const { role, cartId } = userInfo;
+    const totalProducts = await totalQuantity(cartId);
+
+    let adminValidation = "";
+    if (role == "admin") {
+      adminValidation = "admin";
+    }
+    const userInfoDto = new UserResponseDto(userInfo);
+    console.log(userInfoDto);
     res.render("user-detail.handlebars", {
-      first_name,
-      last_name,
-      age,
-      email,
+      userInfoDto,
       role,
+      adminValidation,
+      totalProducts,
+      cartId,
     });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ status: "error", message: "Not Found" });
+  }
+});
+
+router.get("/purchaseHistory", passportCall("jwt"), async (req, res) => {
+  try {
+    const purchaseHistory = await getPurchases(req);
+    const details = purchaseHistory.map((item) => item.details);
+
+    purchaseHistory.forEach((item) => {
+      item.details = item.details.map((detail) => detail.title);
+    });
+    console.log(purchaseHistory);
+    res.render("purchase-history.handlebars", { purchaseHistory });
   } catch (error) {
     console.log(error);
     res.status(400).json({ status: "error", message: "Not Found" });
