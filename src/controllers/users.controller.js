@@ -80,9 +80,18 @@ router.get("/current", passportCall("jwt"), async (req, res) => {
 
 router.get("/purchaseHistory", passportCall("jwt"), async (req, res) => {
   try {
-    const purchaseHistory = await getPurchases(req);
+    const { purchaseHistory, role, first_name, last_name, quantity } =
+      await getPurchases(req);
 
-    res.render("purchase-history.handlebars", { purchaseHistory });
+    console.log(role);
+
+    res.render("purchase-history.handlebars", {
+      purchaseHistory,
+      role,
+      first_name,
+      last_name,
+      quantity,
+    });
   } catch (error) {
     console.log(error);
     res.status(400).json({ status: "error", message: "Not Found" });

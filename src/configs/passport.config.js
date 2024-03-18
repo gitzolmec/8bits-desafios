@@ -15,6 +15,10 @@ const { generateToken } = require("../utils/jwt.util");
 
 const cookieExtractor = require("../utils/cookie-extractor.util");
 const calculateAge = require("../middlewares/calculateAge.middleware");
+const generateUserErrorInfo = require("../handlers/errors/generate-error-info");
+const EErrors = require("../handlers/errors/enum.error");
+const CustomError = require("../handlers/errors/custom.error");
+const TYPES_ERRORS = require("../handlers/errors/user-error-types");
 
 const LocalStrategy = local.Strategy;
 const JWTStrategy = jwt.Strategy;
@@ -26,8 +30,21 @@ const initializePassport = () => {
       { passReqToCallback: true, usernameField: "email" },
       async (req, username, password, done) => {
         try {
-          console.log(req.body);
           const { first_name, last_name, email, age } = req.body;
+
+          if (!first_name || !last_name || !email || !age) {
+            CustomError.createError({
+              name: TYPES_ERRORS.USER_CREATION_ERROR,
+              cause: generateUserErrorInfo({
+                first_name,
+                last_name,
+                email,
+                age,
+              }),
+              message: "Error trying to create User",
+              code: EErrors.INVALID_USER_INFO,
+            });
+          }
           const user = await Users.findOne({ email: username });
           if (user) {
             console.log("User exists");

@@ -15,6 +15,7 @@ router.post(
   async (req, res) => {
     try {
       const { email, password } = req.body;
+
       const user = await Users.findOne({ email: email });
       const token = generateToken({ id: user._id, role: user.role });
 

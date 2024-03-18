@@ -1,5 +1,6 @@
 const UserDao = require("../DAO/Mongo/user-dao.mongo");
 const formatDate = require("../utils/format-date.util");
+const totalQuantity = require("../utils/total-quantity.util");
 
 const Users = new UserDao();
 
@@ -16,7 +17,8 @@ const getPurchases = async (req) => {
 
   const userId = await getUserById(tokenid);
   const id = userId._id;
-
+  const { role, first_name, last_name, cartId } = userId;
+  const quantity = await totalQuantity(cartId);
   const purchaseHistory = await Users.getPurchases(id);
 
   purchaseHistory.forEach((element) => {
@@ -26,7 +28,7 @@ const getPurchases = async (req) => {
     element.purchase_datetime = date;
   });
 
-  return purchaseHistory;
+  return { purchaseHistory, role, first_name, last_name, quantity };
 };
 
 const deleteUser = async (id) => {

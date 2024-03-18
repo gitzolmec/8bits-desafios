@@ -16,6 +16,6 @@ async function totalQuantity(cartId) {
   } catch (err) {
     console.log(err);
   }
-  return 0; // Default value if cart is not found or has no products.
+  return 0; //
 }
 module.exports = totalQuantity;

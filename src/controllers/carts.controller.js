@@ -19,6 +19,7 @@ const {
   updateProductQuantityInCart,
   deleteProductFromCart,
   deleteCart,
+  checkoutCart,
 } = require("../services/carts.service.js");
 const userAuthMiddleware = require("../middlewares/user-validation.middleware.js");
 let cartManager;
@@ -167,8 +168,7 @@ const errorHandler = (err, res) => {
     try {
       const cartId = req.params.cid;
 
-      const { totalprice, purchaseDetails, stock } =
-        await cartManager.checkoutCart(cartId);
+      const { totalprice, purchaseDetails, stock } = await checkoutCart(cartId);
       if (stock === false) {
         console.log("No hay stock suficiente");
         setTimeout(() => {

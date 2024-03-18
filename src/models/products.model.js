@@ -14,6 +14,7 @@ const productSchema = new mongoose.Schema({
   },
   stock: { type: Number, required: true },
   status: { type: Boolean, default: true, required: true },
+  category: { type: String, required: true },
 });
 productSchema.plugin(mongoosePaginate);
 const Products = mongoose.model(productCollection, productSchema);

@@ -6,14 +6,21 @@ const productDAOMongo = require("../DAO/Mongo/product-dao.mongo.js");
 
 const passportCall = require("../utils/passport-call.util.js");
 
-let productManager;
-
 const {
   getAllProducts,
   getClientInfo,
   getProductById,
+  deleteProduct,
+  addProduct,
 } = require("../services/product.service.js");
 const adminAuthMiddleware = require("../middlewares/admin-validation.middleware.js");
+const {
+  deleteProductErrorInfo,
+  productIdNotFound,
+  createProductErrorInfo,
+} = require("../handlers/errors/generate-error-info.js");
+const PRODUCT_ERRORS = require("../handlers/errors/product-error-types.js");
+const EErrors = require("../handlers/errors/enum.error.js");
 // Función para manejar errores y enviar una respuesta con un código de estado 500
 const errorHandler = (err, res) => {
   if (err.statusCode === HTTP_RESPONSES.NOT_FOUND) {
@@ -92,12 +99,15 @@ const errorHandler = (err, res) => {
       if (product) {
         res.json({ product });
       } else {
-        res
-          .status(HTTP_RESPONSES.NOT_FOUND)
-          .json({ error: "Producto no encontrado" });
+        CustomError.createError({
+          name: PRODUCT_ERRORS.PRODUCT_ID_NOT_FOUND,
+          cause: productIdNotFound(pid),
+          message: `The product with id ${pid} does not exist`,
+          code: EErrors.NOT_FOUND,
+        });
       }
-    } catch (err) {
-      errorHandler(err, res);
+    } catch (error) {
+      res.json({ error });
     }
   });
 
@@ -109,8 +119,16 @@ const errorHandler = (err, res) => {
     async (req, res) => {
       try {
         console.log("Request body:", req.body);
-        const { title, description, price, thumbnail, code, stock, status } =
-          req.body;
+        const {
+          title,
+          description,
+          price,
+          thumbnail,
+          code,
+          stock,
+          status,
+          category,
+        } = req.body;
 
         if (
           !title ||
@@ -119,9 +137,24 @@ const errorHandler = (err, res) => {
           !thumbnail ||
           !code ||
           !stock ||
-          !status
+          !status ||
+          !category
         ) {
-          throw new Error("Todos los campos son obligatorios");
+          CustomError.createError({
+            name: PRODUCT_ERRORS.ERROR_CREATING_PRODUCT,
+            cause: createProductErrorInfo(
+              title,
+              description,
+              price,
+              thumbnail,
+              code,
+              stock,
+              status,
+              category
+            ),
+            message: `One or more properties were incomplete or note valid.`,
+            code: EErrors.BAD_REQUEST,
+          });
         }
         const newProductInfo = {
           title,
@@ -131,14 +164,14 @@ const errorHandler = (err, res) => {
           code,
           stock,
           status,
+          category,
         };
 
-        const newProduct = await productManager.addProduct(newProductInfo);
+        const newProduct = await addProduct(newProductInfo);
 
         res.json({ message: "Producto agregado con éxito" });
       } catch (err) {
-        console.error("Error:", err);
-        errorHandler(err, res);
+        res.json({ err });
       }
     }
   );
@@ -153,20 +186,23 @@ const errorHandler = (err, res) => {
         const pid = req.params.pid;
 
         const updatedFields = req.body;
-        const product = await productManager.getProductById(pid);
+        const product = await getProductById(pid);
         if (!product) {
-          let err = new Error("Producto no encontrado");
-          err.statusCode = HTTP_RESPONSES.NOT_FOUND;
-          throw err;
+          CustomError.createError({
+            name: PRODUCT_ERRORS.ERROR_UPDATING_PRODUCT,
+            cause: productIdNotFound(pid),
+            message: `The product with id ${pid} does not exist`,
+            code: EErrors.NOT_FOUND,
+          });
         }
-        const update = await productManager.updateProduct(pid, updatedFields);
+        const update = await updateProduct(pid, updatedFields);
 
         res.json({
           message: `Producto con ID ${pid} actualizado con éxito`,
           update,
         });
       } catch (err) {
-        errorHandler(err, res);
+        res.json({ err });
       }
     }
   );
@@ -180,13 +216,14 @@ const errorHandler = (err, res) => {
       try {
         const pid = req.params.pid;
 
-        const deleted = (await productManager.deleteProduct(pid))
-          ? true
-          : false;
+        const deleted = (await deleteProduct(pid)) ? true : false;
 
         if (!deleted) {
-          return res.status(HTTP_RESPONSES.NOT_FOUND).json({
-            message: "Producto no encontrado",
+          CustomError.createError({
+            name: PRODUCT_ERRORS.ERROR_DELETING_PRODUCT,
+            cause: deleteProductErrorInfo(pid),
+            message: "Error trying to delete product",
+            code: EErrors.NOT_FOUND,
           });
         }
 
@@ -194,10 +231,7 @@ const errorHandler = (err, res) => {
           message: `Producto con ID ${pid} eliminado con éxito`,
         });
       } catch (error) {
-        console.error(error);
-        res.status(500).json({
-          error: "Error al eliminar producto",
-        });
+        res.json({ error });
       }
     }
   );
@@ -210,8 +244,16 @@ const errorHandler = (err, res) => {
     async (req, res) => {
       try {
         console.log("Request body:", req.body);
-        const { title, description, price, thumbnail, code, stock, status } =
-          req.body;
+        const {
+          title,
+          description,
+          price,
+          thumbnail,
+          code,
+          stock,
+          status,
+          category,
+        } = req.body;
 
         if (
           !title ||
@@ -220,9 +262,24 @@ const errorHandler = (err, res) => {
           !thumbnail ||
           !code ||
           !stock ||
-          !status
+          !status ||
+          !category
         ) {
-          throw new Error("Todos los campos son obligatorios");
+          CustomError.createError({
+            name: PRODUCT_ERRORS.ERROR_CREATING_PRODUCT,
+            cause: createProductErrorInfo(
+              title,
+              description,
+              price,
+              thumbnail,
+              code,
+              stock,
+              status,
+              category
+            ),
+            message: `One or more properties were incomplete or note valid.`,
+            code: EErrors.BAD_REQUEST,
+          });
         }
         const newProductInfo = {
           title,
@@ -234,13 +291,12 @@ const errorHandler = (err, res) => {
           status,
         };
         console.log(newProductInfo);
-        const newProduct = await productManager.addProduct(newProductInfo);
+        const newProduct = await addProduct(newProductInfo);
 
         io.emit("addProduct", newProduct);
         res.render("realTimeProducts.handlebars");
       } catch (err) {
-        console.error("Error:", err);
-        errorHandler(err, res);
+        res.json({ err });
       }
     }
   );
@@ -255,18 +311,21 @@ const errorHandler = (err, res) => {
         const pid = req.params.pid;
 
         // Obtener la información del producto antes de eliminarlo
-        const deletedProduct = await productManager.getProductById(pid);
+        const deletedProduct = await getProductById(pid);
 
         if (!deletedProduct) {
-          return res.status(404).json({
-            message: "Producto no encontrado",
+          CustomError.createError({
+            name: PRODUCT_ERRORS.ERROR_DELETING_PRODUCT,
+            cause: deleteProductErrorInfo(pid),
+            message: "Error trying to delete User",
+            code: EErrors.NOT_FOUND,
           });
         }
 
         // Eliminar el producto
-        const deleted = await productManager.deleteProduct(pid);
+        const deleted = await deleteProduct(pid);
 
-        const newProductList = await productManager.getProducts();
+        const newProductList = await getAllProducts();
         const { io } = require("../app.js");
         // Emitir el evento 'updateProductList' para actualizar la lista de productos
         io.emit("updateProducts", newProductList);
@@ -276,10 +335,7 @@ const errorHandler = (err, res) => {
           product: deletedProduct,
         });
       } catch (error) {
-        console.error(error);
-        res.status(500).json({
-          error: "Error al eliminar producto",
-        });
+        res.json({ error });
       }
     }
   );
@@ -298,7 +354,14 @@ const errorHandler = (err, res) => {
       } = await getClientInfo(req);
 
       const product = await getProductById(productId);
-
+      if (!product) {
+        CustomError.createError({
+          name: PRODUCT_ERRORS.PRODUCT_ID_NOT_FOUND,
+          cause: productIdNotFound(pid),
+          message: `The product with id ${pid} does not exist`,
+          code: EErrors.NOT_FOUND,
+        });
+      }
       const productrender = [product];
       const { _id, title, description, price, thumbnail, code, stock, status } =
         productrender[0];
@@ -320,8 +383,7 @@ const errorHandler = (err, res) => {
         adminValidation,
       });
     } catch (error) {
-      console.log(error);
-      res.status(500).send("Hubo un error");
+      res.json({ error });
     }
   });
 })();

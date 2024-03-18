@@ -43,10 +43,16 @@ const getAllProducts = async (req) => {
   }
 };
 
+const addProduct = async (productInfo) => {
+  return await Products.addProduct(productInfo);
+};
 const getProductById = async (id) => {
   return await Products.getProductById(id);
 };
 
+const updateProduct = async (id, productInfo) => {
+  return await Products.updateProduct(id, productInfo);
+};
 const getClientInfo = async (req) => {
   try {
     const tokenid = req.user.id;
@@ -77,4 +83,15 @@ const getClientInfo = async (req) => {
   }
 };
 
-module.exports = { getAllProducts, getProductById, getClientInfo };
+const deleteProduct = async (id) => {
+  return await Products.deleteProduct(id);
+};
+
+module.exports = {
+  getAllProducts,
+  getProductById,
+  getClientInfo,
+  updateProduct,
+  deleteProduct,
+  addProduct,
+};

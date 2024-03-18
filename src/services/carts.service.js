@@ -5,10 +5,8 @@ const transporter = require("../utils/nodemailer.util");
 const cart = new cartDao();
 
 const getCartById = async (id) => {
-  console.log("llegamos aca", id);
-
   const thisCart = await cart.getCartById(id);
-  console.log(thisCart);
+
   return thisCart;
 };
 
@@ -127,7 +125,7 @@ const sendEmail = async (
     text: `Hola ${first_name} ${last_name}`,
     html: message,
   });
-  console.log(purchaseDetails);
+
   console.log("Message sent: %s", MailInfo.messageId);
 };
 

@@ -49,8 +49,21 @@ class ProductDAO {
   }
 
   async getProductById(id) {
-    const product = await Products.findOne({ _id: id });
-    return product;
+    try {
+      const product = await Products.findOne({ _id: id });
+      // if (!product) {
+      //   CustomError.createError({
+      //     name: PRODUCT_ERRORS.PRODUCT_ID_NOT_FOUND,
+      //     cause: productIdNotFound(id),
+      //     message: `The product with id ${id} does not exist`,
+      //     code: EErrors.NOT_FOUND,
+      //   });
+      // }
+
+      return product;
+    } catch (error) {
+      console.log("Error al obtener el producto desde MongoDB");
+    }
   }
 
   async addProduct(productInfo) {

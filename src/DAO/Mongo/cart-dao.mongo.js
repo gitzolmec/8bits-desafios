@@ -94,7 +94,6 @@ class cartDao {
   }
 
   async updateProductQuantityInCart(cartId, productId, quantity) {
-    console.log("DATOS: ", cartId, productId, quantity);
     try {
       const cart = await Carts.findOne({ _id: cartId });
       if (!cart) {
@@ -111,7 +110,6 @@ class cartDao {
         const product = cart.products[productIndex].quantity;
 
         if (product > 1 && quantity) {
-          console.log("ENTRA AQUI");
           cart.products[productIndex].quantity -= quantity;
         } else if (product > 1 && !quantity) {
           cart.products[productIndex].quantity -= 1;
