@@ -1,8 +1,10 @@
+const { logger } = require("../middlewares/logger.middleware");
 const Carts = require("../models/carts.model");
 async function totalQuantity(cartId) {
   try {
     const cart = await Carts.findOne({ _id: cartId });
     if (!cart) {
+      logger.warn("Carrito no encontrado");
       throw new Error("Carrito no encontrado");
     }
     const currentCart = cart.products;
@@ -14,7 +16,7 @@ async function totalQuantity(cartId) {
 
     return quantity;
   } catch (err) {
-    console.log(err);
+    logger.error(err);
   }
   return 0; //
 }

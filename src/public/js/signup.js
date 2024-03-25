@@ -30,7 +30,6 @@ form.addEventListener("submit", (e) => {
       return response.json();
     })
     .then((data) => {
-      console.log(data);
       if (data.redirectURL) {
         window.location.href = data.redirectURL; // Redirige a la URL proporcionada en la respuesta
       }

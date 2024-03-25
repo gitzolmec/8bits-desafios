@@ -1,4 +1,5 @@
 const ProductDAO = require("../DAO/Mongo/product-dao.mongo");
+const { logger } = require("../middlewares/logger.middleware");
 const totalQuantity = require("../utils/total-quantity.util");
 const { getUserById } = require("./users.service");
 
@@ -39,7 +40,7 @@ const getAllProducts = async (req) => {
       pSort,
     };
   } catch (error) {
-    console.log(error);
+    logger.fatal(error);
   }
 };
 
@@ -79,7 +80,7 @@ const getClientInfo = async (req) => {
       cartId,
     };
   } catch (error) {
-    console.log(error);
+    logger.error(error);
   }
 };
 

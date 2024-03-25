@@ -5,16 +5,17 @@ const handlebars = require("express-handlebars");
 const mongoConnect = require("./db");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
-
+const path = require("path");
 const MongoStore = require("connect-mongo");
-const { dbUser, dbPassword, dbHost, dbName } = require("./configs/db.config");
+
 const initializePassport = require("./configs/passport.config");
 const passport = require("passport");
+const { winstonLogger } = require("./middlewares/logger.middleware");
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(process.cwd() + "/public"));
+app.use(express.static(process.cwd() + "/src/public"));
 app.use(
   session({
     secret: "8-bits",
@@ -23,13 +24,14 @@ app.use(
     saveUninitialized: false,
   })
 );
+app.use(winstonLogger);
 
 initializePassport();
 app.use(passport.initialize());
 
 app.engine("handlebars", handlebars.engine());
 
-app.set("view engine", process.cwd() + "/views");
+app.set("views", process.cwd() + "/src/views");
 app.set("view engine", "handlebars");
 
 router(app);

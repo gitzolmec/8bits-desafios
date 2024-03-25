@@ -1,12 +1,9 @@
 const { Router } = require("express");
 const router = Router();
-const cartDAOFl = require("../DAO/Arrays/cart-dao.file");
 const cartDaoMongo = require("../DAO/Mongo/cart-dao.mongo");
-const authMiddleware = require("../middlewares/auth.middleware.js");
+
 const passportCall = require("../utils/passport-call.util.js");
-const totalQuantity = require("../utils/total-quantity.util.js");
-const { getUserById } = require("../services/users.service.js");
-const { create } = require("connect-mongo");
+
 const {
   createTicket,
   addProductToCart,
@@ -35,10 +32,9 @@ const errorHandler = (err, res) => {
   router.post("/", async (req, res) => {
     // Crear un nuevo carrito
     try {
-      console.log("Creando carrito");
       const cart = await addCart();
       const idcart = cart._id;
-      console.log("Carrito creado:", idcart);
+      req.logger.debug("Carrito creado:", idcart);
       res.json({ idcart });
     } catch (err) {
       errorHandler(err, res);
@@ -62,7 +58,7 @@ const errorHandler = (err, res) => {
       const { first_name, last_name, cartId } = userInfo;
 
       const cart = await getCartById(cartId);
-      console.log(cart);
+
       const totalQuantity = await getCartTotalQuantity(cartId);
 
       if (cart) {
@@ -81,6 +77,7 @@ const errorHandler = (err, res) => {
         });
       } else {
         res.status(404).json({ error: "Carrito no encontrado" });
+        req.logger.error("Carrito no encontrado");
       }
     } catch (err) {
       errorHandler(err, res);
@@ -170,7 +167,7 @@ const errorHandler = (err, res) => {
 
       const { totalprice, purchaseDetails, stock } = await checkoutCart(cartId);
       if (stock === false) {
-        console.log("No hay stock suficiente");
+        req.logger.warning("No hay stock suficiente");
         setTimeout(() => {
           res.redirect("/api/products");
         }, 5000);
@@ -180,6 +177,7 @@ const errorHandler = (err, res) => {
       const ticket = await createTicket(req, totalprice, purchaseDetails);
       res.redirect("/api/products");
     } catch (err) {
+      req.logger.error("error al completar la compra", err);
       errorHandler(err, res);
     }
   });

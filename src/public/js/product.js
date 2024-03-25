@@ -1,8 +1,6 @@
 // Conexión al servidor de Socket.io
 
 function addProductFromFront(productId) {
-  console.log(productId, "front");
-
   return addProducts(productId);
 }
 
@@ -11,7 +9,6 @@ async function addProducts(productId) {
     const cartId = document.getElementById("cartId").textContent;
     const quantity = 1;
     const newProductId = productId;
-    console.log(newProductId, "new");
 
     await new Promise((resolve) =>
       socket.emit("addProd", { cartId, newProductId, quantity }, resolve)
@@ -22,8 +19,6 @@ async function addProducts(productId) {
 }
 
 socket.on("updateProducts", (products) => {
-  console.log("Productos actualizados:", products);
-
   updateProductList(products);
 });
 
@@ -49,12 +44,11 @@ function addProductToView(product, container) {
 
 // Función para actualizar la lista de productos
 function updateProductList(products) {
-  console.log("Actualizando lista de productos:", products);
   const productListContainer = document.getElementById("product-list");
 
   // Limpiar la lista actual
   productListContainer.innerHTML = "";
-  console.log(products);
+
   // Crear y agregar tarjetas de producto para cada producto en la nueva lista
   products.forEach((product) => {
     const productCard = createProductCard(product);

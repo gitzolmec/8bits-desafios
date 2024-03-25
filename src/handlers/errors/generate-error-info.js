@@ -62,9 +62,11 @@ const updateProductErrorInfo = (
     * category   : needs to be a string, received ${category},
     `;
 };
+
 module.exports = {
   generateUserErrorInfo,
   deleteProductErrorInfo,
   productIdNotFound,
   createProductErrorInfo,
+  updateProductErrorInfo,
 };

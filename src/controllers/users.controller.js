@@ -83,8 +83,6 @@ router.get("/purchaseHistory", passportCall("jwt"), async (req, res) => {
     const { purchaseHistory, role, first_name, last_name, quantity } =
       await getPurchases(req);
 
-    console.log(role);
-
     res.render("purchase-history.handlebars", {
       purchaseHistory,
       role,

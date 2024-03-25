@@ -11,7 +11,6 @@ const {
   createHash,
   useValidPassword,
 } = require("../utils/crypt.password.util");
-const { generateToken } = require("../utils/jwt.util");
 
 const cookieExtractor = require("../utils/cookie-extractor.util");
 const calculateAge = require("../middlewares/calculateAge.middleware");
@@ -19,6 +18,7 @@ const generateUserErrorInfo = require("../handlers/errors/generate-error-info");
 const EErrors = require("../handlers/errors/enum.error");
 const CustomError = require("../handlers/errors/custom.error");
 const TYPES_ERRORS = require("../handlers/errors/user-error-types");
+const { logger } = require("../middlewares/logger.middleware");
 
 const LocalStrategy = local.Strategy;
 const JWTStrategy = jwt.Strategy;
@@ -47,7 +47,7 @@ const initializePassport = () => {
           }
           const user = await Users.findOne({ email: username });
           if (user) {
-            console.log("User exists");
+            logger.warning("User already exists");
             return done(null, false);
           }
           const userAge = calculateAge(age);
@@ -61,7 +61,7 @@ const initializePassport = () => {
             password: createHash(password),
             cartId,
           };
-          console.log(newUserInfo);
+
           const newUser = await Users.create(newUserInfo);
 
           return done(null, newUser);
@@ -81,7 +81,7 @@ const initializePassport = () => {
           const usuario = await Users.findOne({ email: username });
 
           if (!usuario) {
-            console.log("Usuario no existe");
+            logger.warning("User not found");
             return done(null, false);
           }
 
@@ -128,7 +128,7 @@ const initializePassport = () => {
 
           return done(null, user);
         } catch (error) {
-          console.log(error);
+          logger.error("Error al inciar con github: ", error);
           done(error);
         }
       }

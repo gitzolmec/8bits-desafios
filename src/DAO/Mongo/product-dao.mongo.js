@@ -1,3 +1,4 @@
+const { logger } = require("../../middlewares/logger.middleware");
 const Products = require("../../models/products.model");
 const mongoosePaginate = require("mongoose-paginate-v2");
 
@@ -41,8 +42,7 @@ class ProductDAO {
 
       return products;
     } catch (error) {
-      console.log("Error al obtener los productos desde MongoDB");
-      console.log(error);
+      logger.error("Error al obtener los productos desde MongoDB");
 
       throw error;
     }
@@ -51,18 +51,10 @@ class ProductDAO {
   async getProductById(id) {
     try {
       const product = await Products.findOne({ _id: id });
-      // if (!product) {
-      //   CustomError.createError({
-      //     name: PRODUCT_ERRORS.PRODUCT_ID_NOT_FOUND,
-      //     cause: productIdNotFound(id),
-      //     message: `The product with id ${id} does not exist`,
-      //     code: EErrors.NOT_FOUND,
-      //   });
-      // }
 
       return product;
     } catch (error) {
-      console.log("Error al obtener el producto desde MongoDB");
+      logger.error("Error al obtener el producto desde MongoDB: ", error);
     }
   }
 

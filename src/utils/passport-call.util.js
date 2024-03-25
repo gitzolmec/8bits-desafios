@@ -1,4 +1,5 @@
 const passport = require("passport");
+const { logger } = require("../middlewares/logger.middleware");
 
 const passportCall = (strategy) => {
   return (req, res, next) => {
@@ -12,10 +13,8 @@ const passportCall = (strategy) => {
         next();
       })(req, res, next);
     } catch (error) {
-      console.error(error);
-      res
-        .status(500)
-        .send({ error: "An error occurred during authentication." });
+      logger.error("error al realizar autenticacion");
+      res.send({ error: "An error occurred during authentication." });
     }
   };
 };

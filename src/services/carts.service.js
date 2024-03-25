@@ -2,6 +2,7 @@ const cartDao = require("../DAO/Mongo/cart-dao.mongo");
 const { v4: uuidv4 } = require("uuid");
 const { getUserById, updateUser } = require("./users.service");
 const transporter = require("../utils/nodemailer.util");
+const { logger } = require("../middlewares/logger.middleware");
 const cart = new cartDao();
 
 const getCartById = async (id) => {
@@ -82,7 +83,7 @@ const addProductToCart = async (req) => {
   const cartId = req.params.cid;
   const productId = req.params.pid;
   const quantity = req.body.quantity || 1;
-  const cart = await cart.addProductToCart(cartId, productId, quantity);
+  const cart = await cart.addProductToCart(cartId, productId, quantity, req);
   return cart;
 };
 
@@ -126,7 +127,7 @@ const sendEmail = async (
     html: message,
   });
 
-  console.log("Message sent: %s", MailInfo.messageId);
+  logger.info("Message sent: %s", MailInfo.messageId);
 };
 
 module.exports = {

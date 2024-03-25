@@ -24,6 +24,7 @@ router.post(
 
       // Duración de 1 hora
       const horaEnMilisegundos = ms("1h");
+      req.logger.info("Sesion iniciada");
       res
         .cookie("authToken", token, {
           maxAge: horaEnMilisegundos,
@@ -51,6 +52,7 @@ router.get("/fail-login", (req, res) => {
 router.get("/logout", (req, res) => {
   console.log("logout");
   try {
+    req.logger.info("Sesión destruida");
     res.clearCookie("authToken").redirect("/api/login");
   } catch (error) {
     console.error("Error al destruir la sesión:", error);

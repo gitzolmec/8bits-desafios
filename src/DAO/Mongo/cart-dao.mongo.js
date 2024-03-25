@@ -1,3 +1,4 @@
+const { logger } = require("../../middlewares/logger.middleware");
 const Carts = require("../../models/carts.model");
 const Tickets = require("../../models/tickets.model");
 const { getProductById } = require("../../services/product.service");
@@ -12,7 +13,7 @@ class cartDao {
   }
 
   async getCartById(id) {
-    console.log(id);
+    logger.debug(`ID del carrito: ${id}`);
     return await Carts.findOne({ _id: id }, { __v: 0 })
       .populate("products.id")
       .lean();
@@ -26,7 +27,7 @@ class cartDao {
 
       return await Carts.create(carritoVacio);
     } catch (error) {
-      console.error(error);
+      logger.error("Error al crear el carrito: ", error);
       throw new Error("Error al crear el carrito");
     }
   }
@@ -38,6 +39,7 @@ class cartDao {
       const cart = await Carts.findOne({ _id: cartId });
 
       if (!cart) {
+        logger.warning("Carrito no encontrado");
         throw new Error("Carrito no encontrado");
       }
 
@@ -54,12 +56,13 @@ class cartDao {
 
       // Guardar el carrito actualizado en la base de datos
       await cart.save();
+      logger.info("Producto agregado al carrito");
       const totalProducts = await totalQuantity(cartId);
-      const { io } = require("../../app");
+      const { io } = require("../../../app");
 
       io.emit("cartUpdated", cart, totalProducts, view);
     } catch (error) {
-      console.error(error);
+      logger.error("Error al agregar el producto al carrito: ", error);
       throw new Error("Error al agregar el producto al carrito");
     }
   }
@@ -86,7 +89,10 @@ class cartDao {
       });
       await cart.save();
     } catch (error) {
-      console.error(error);
+      logger.error(
+        "Error al actualizar el carrito con la lista de productos: ",
+        error
+      );
       throw new Error(
         "Error al actualizar el carrito con la lista de productos"
       );
@@ -119,7 +125,7 @@ class cartDao {
         await cart.save();
         const totalProducts = await totalQuantity(cartId);
 
-        const { io } = require("../../app");
+        const { io } = require("../../../app");
 
         io.emit("oneProductDeleted", cart, totalProducts);
       } else {
@@ -127,7 +133,10 @@ class cartDao {
       }
       return cart.products;
     } catch (error) {
-      console.error(error);
+      logger.error(
+        "Error al actualizar la cantidad del producto en el carrito: ",
+        error
+      );
       throw new Error(
         "Error al actualizar la cantidad del producto en el carrito"
       );
@@ -149,14 +158,15 @@ class cartDao {
       }
       cart.products.splice(productIndex, 1);
       await cart.save();
+      logger.info("Producto eliminado del carrito");
       const totalProducts = await totalQuantity(cartId);
-      const { io } = require("../../app");
+      const { io } = require("../../../app");
 
       io.emit("ProductDeleted", productId, totalProducts);
 
       return cart;
     } catch (error) {
-      console.error(error);
+      logger.error("error al eliminar el producto del carrito: ", error);
       throw new Error("Error al eliminar el producto del carrito");
     }
   }
@@ -165,13 +175,14 @@ class cartDao {
     try {
       const cart = await Carts.findOne({ _id: cartId });
       if (!cart) {
+        logger.warning("Carrito no encontrado");
         throw new Error("Carrito no encontrado");
       }
       cart.products = [];
       await cart.save();
       return cart;
     } catch (err) {
-      console.log(err);
+      logger.error("Error al eliminar el carrito: ", err);
     }
   }
 
@@ -190,7 +201,7 @@ class cartDao {
 
       return quantity;
     } catch (err) {
-      console.log(err);
+      logger.error("Error al obtener la cantidad total del carrito: ", err);
     }
     return 0;
   }
@@ -203,6 +214,7 @@ class cartDao {
       const purchaseDetails = [];
       let totalprice = 0;
       if (!cart) {
+        logger.warning("Carrito no encontrado");
         throw new Error("Carrito no encontrado");
       }
       const products = cart.products;
@@ -211,7 +223,7 @@ class cartDao {
         const productDetails = await getProductById(productId);
 
         if (productDetails.stock === 0) {
-          console.log(
+          logger.info(
             `El producto ${productDetails.title} no tiene stock disponible. Se omitirá de la compra.`
           );
           stock = false;
@@ -219,7 +231,7 @@ class cartDao {
           productDetails.stock > 0 &&
           productDetails.stock < product.quantity
         ) {
-          console.log(
+          logger.info(
             `No hay stock suficiente para el producto ${productDetails.title}`
           );
           pendingProducts = true;
@@ -261,7 +273,7 @@ class cartDao {
       if (pendingProducts === true) {
         const Products = await Carts.findById(cartId);
         const productsNotAvailable = Products.products;
-        console.log(
+        logger.warning(
           "Productos no incluidos en la compra por falta de stock: ",
           productsNotAvailable
         );
@@ -269,7 +281,7 @@ class cartDao {
       }
       return { purchaseDetails, totalprice, stock };
     } catch (err) {
-      console.log(err);
+      logger.error("Error al realizar la compra: ", err);
     }
   }
 
@@ -292,7 +304,7 @@ class cartDao {
       });
       return ticket;
     } catch (err) {
-      console.log(err);
+      logger.error("Error al crear el ticket: ", err);
     }
     {
     }
